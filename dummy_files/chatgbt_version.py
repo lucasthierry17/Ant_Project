@@ -102,3 +102,5 @@ obstacle_positions = [(5, 5), (7, 12), (12, 8), (15, 15)]
 max_steps = 100
 
 visualize_simulation(board_size, nest_position, food_position, obstacle_positions, max_steps)
+
+
