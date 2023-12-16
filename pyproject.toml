@@ -57,7 +57,7 @@ exclude = '''
 
 [tool.isort]
 profile = "black"
-known_first_party = "Ant_Project"
+known_first_party = "python_ant_project"
 packages = ["python_ant_project"]
 src_paths = ["Ant_Project", "tests"]
 line_length = "100"
