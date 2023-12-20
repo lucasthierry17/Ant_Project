@@ -7,9 +7,6 @@
 requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
 
-[tool.setuptools]
-packages = ["python_ant_project", "tests"]
-
 [project]
 authors = [
     { name = "Lucas Mueller", email = "lucas.mueller2@study.hs-duesseldorf.de" }
