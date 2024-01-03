@@ -58,10 +58,8 @@ exclude = '''
 [tool.isort]
 profile = "black"
 known_first_party = "python_ant_project"
-packages = ["python_ant_project"]
-src_paths = ["Ant_Project", "tests"]
+src_paths = ["python_ant_project", "tests"]
 line_length = "100"
-
 [tool.pylint]  # If you opt to use pylint
 # Pylint configuration options
 
