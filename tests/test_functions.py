@@ -1,5 +1,6 @@
 """Tests for the function inside the time_1.py file
 """
+
 import numpy as np
 from Version1 import Ants, Food
 
