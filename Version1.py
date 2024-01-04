@@ -2,8 +2,10 @@ import time
 import numpy as np
 import matplotlib.pyplot as plt
 
+
 class Ants:
-    """This class contains the functions movement, perception and approach_food. """
+    """This class contains the functions movement, perception and approach_food."""
+
     def __init__(self, num_ants):
         self.positions = np.zeros((num_ants, 2))
         self.directions = np.random.uniform(0, 360, size=num_ants)
@@ -33,45 +35,55 @@ class Ants:
             distances = np.linalg.norm(food.positions - ant_pos, axis=1)
             detected = any(distance <= perception_radius for distance in distances)
             detected_targets.append(detected)
-        
+
         return detected_targets
 
     def approach_food(self, food, detected_food, approach_speed):
         """this function determines how to ants approch the food. The function takes in the location of the food, the detected_food from every ant and the approch_speed. The approch_speed determines how fast the ants move towards the food, if they have detected anything. This function is only in use, if an ant has detected a food_item. If an ant detects several food_items inside of their radius, then the distance is calculated and the ants move to the closest one. In the end, the position of the ant is updated towards the food_item"""
-        for ant, detected in enumerate(detected_food): # iterates over the elements of detected_food and their indices. Detected is a boolean for each ant 
+        for ant, detected in enumerate(
+            detected_food
+        ):  # iterates over the elements of detected_food and their indices. Detected is a boolean for each ant
             if detected:
                 nearest_food_index = np.argmin(np.linalg.norm(food.positions - self.positions[ant], axis=1))
                 direction_to_food = food.positions[nearest_food_index] - self.positions[ant]
                 direction_to_food /= np.linalg.norm(direction_to_food)
                 self.positions[ant] += direction_to_food * approach_speed
-            
+
         return self.positions
+
 
 class Food:
     "this class determines the location of the food_items and deploys them"
+
     def __init__(self, num_food):
         self.positions = np.random.uniform(-15, 15, size=(num_food, 2))
 
     def deploy_food(self):
         return self.positions
 
+
 class Board:
-    """the board class is for the visualisation of the board and for the simulation. """
+    """the board class is for the visualisation of the board and for the simulation."""
+
     def __init__(self, num_ants, num_food):
         self.ants = Ants(num_ants)
         self.food = Food(num_food)
 
     def visualize(self, detected_food, step):
-        plt.scatter(self.ants.positions[:, 0], self.ants.positions[:, 1], marker='x', color='b') # creates Ants as red "x"
-        plt.scatter(self.food.positions[:, 0], self.food.positions[:, 1], marker='o', color='g') # creates food sources as green "o"
+        plt.scatter(
+            self.ants.positions[:, 0], self.ants.positions[:, 1], marker="x", color="b"
+        )  # creates Ants as red "x"
+        plt.scatter(
+            self.food.positions[:, 0], self.food.positions[:, 1], marker="o", color="g"
+        )  # creates food sources as green "o"
 
         for ant, detected in enumerate(detected_food):
             if detected:
-                plt.plot(self.ants.positions[ant, 0], self.ants.positions[ant, 1], 'rx')
+                plt.plot(self.ants.positions[ant, 0], self.ants.positions[ant, 1], "rx")
 
-        plt.title(f'Step {step + 1}/{num_steps}')
-        plt.xlabel('X Coordinate')
-        plt.ylabel('Y Coordinate')
+        plt.title(f"Step {step + 1}/{num_steps}")
+        plt.xlabel("X Coordinate")
+        plt.ylabel("Y Coordinate")
         plt.xlim(-20, 20)
         plt.ylim(-20, 20)
         plt.grid(True)
@@ -94,6 +106,7 @@ class Board:
         plt.show()
         plt.close()
 
+
 # Set the number of steps, ants, perception radius, and approach speed
 num_steps = 30
 num_ants = 1
@@ -103,7 +116,7 @@ approach_speed = 0.5
 
 start_time = time.time()
 board = Board(num_ants, num_food)
-board.simulate(num_steps, perception_radius, approach_speed) # runs the code 
+board.simulate(num_steps, perception_radius, approach_speed)  # runs the code
 end_time = time.time()
 duration = end_time - start_time
 print(duration)
