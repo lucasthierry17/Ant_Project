@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-from math import pi, sin, cos, atan2, radians, degrees
+from math import atan2, cos, degrees, pi, radians, sin
 from random import randint
-import pygame as pg
+
 import numpy as np
+import pygame as pg
 
 """
 NAnts - Ant pheromone trail simulation. Surfarray version. WIP
