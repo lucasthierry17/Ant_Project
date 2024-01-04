@@ -1,8 +1,7 @@
 """Tests for the function inside the time_1.py file
 """
 import numpy as np
-import pytest
-from Version1 import Ants, Board, Food
+from Version1 import Ants, Food
 
 
 def test_movement():

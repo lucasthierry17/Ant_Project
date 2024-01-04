@@ -246,10 +246,7 @@ class Vec2:
 def main():
     pg.init()  # prepare window
     pg.display.set_caption("NAnts")
-    try:
-        pg.display.set_icon(pg.img.load("nants.png"))
-    except:
-        print("FYI: nants.png icon not found, skipping..")
+
     # setup fullscreen or window mode
     if FLLSCRN:  # screen = pg.display.set_mode((0,0), pg.FULLSCREEN)
         currentRez = (pg.display.Info().current_w, pg.display.Info().current_h)
@@ -273,7 +270,7 @@ def main():
     foods = pg.sprite.Group()
     font = pg.font.Font(None, 30)
     clock = pg.time.Clock()
-    fpsChecker = 0
+
     # main loop
     while True:
         for e in pg.event.get():
