@@ -246,7 +246,7 @@ class Vec2:
 def main():
     pg.init()  # prepare window
     pg.display.set_caption("NAnts")
-     
+
     # setup fullscreen or window mode
     if FLLSCRN:  # screen = pg.display.set_mode((0,0), pg.FULLSCREEN)
         currentRez = (pg.display.Info().current_w, pg.display.Info().current_h)
