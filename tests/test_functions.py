@@ -43,7 +43,5 @@ def test_perception():
     )  # checking if the results from the function are equal to the expected results
 
 
-
 def test_approach_food():
     pass
-
