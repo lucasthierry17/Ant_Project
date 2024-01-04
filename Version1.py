@@ -99,7 +99,7 @@ num_steps = 30
 num_ants = 1
 num_food = 10
 perception_radius = 2
-approach_speed = 0.7
+approach_speed = 0.5
 
 start_time = time.time()
 board = Board(num_ants, num_food)
