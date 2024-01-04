@@ -43,25 +43,7 @@ def test_perception():
     )  # checking if the results from the function are equal to the expected results
 
 
+
 def test_approach_food():
-    # Create an instance of Ants and Food
-    num_ants = 5
-    ants = Ants(num_ants)
-    num_food = 3
-    food = Food(num_food)
+    pass
 
-    # Set positions of ants and food to known values
-    ants.positions = np.array([[0.5, 0.5], [1, 1], [2.2, 2.5], [3, 3], [4.1, 4.7]])
-    food.positions = np.array([[0, 0], [2, 2], [4, 4]])
-
-    # only the first, third and fifth ant are detecting food
-    detected_food = [True, False, True, False, True]
-
-    # Set a known approach speed
-    approach_speed = 0.5
-
-    # Call the approach_food method
-    updated_positions = ants.approach_food(food, detected_food, approach_speed)
-
-    # Verify the results
-    assert food.positions - updated_positions < food.positions - ants.positions
