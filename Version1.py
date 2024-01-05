@@ -99,7 +99,7 @@ class Board:
 
             self.visualize(detected_food, step)
 
-            plt.pause(0.4)
+            # plt.pause(0.1)
             plt.clf()
 
         plt.ioff()
@@ -108,8 +108,8 @@ class Board:
 
 
 # Set the number of steps, ants, perception radius, and approach speed
-num_steps = 30
-num_ants = 1
+num_steps = 100
+num_ants = 500
 num_food = 10
 perception_radius = 2
 approach_speed = 0.7
