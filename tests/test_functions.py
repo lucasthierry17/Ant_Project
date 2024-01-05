@@ -39,6 +39,8 @@ def test_perception():
     assert (
         perception_function == expected_results
     )  # checking if the results from the function are equal to the expected results
+
+
 """
 def test_approach_food():
     # Create an instance of Ants and Food
@@ -67,12 +69,14 @@ def test_approach_food():
 
 
 def test_deploy_food():
-    num_food = 3 # set the number of food sources
+    num_food = 3  # set the number of food sources
     food = Food(num_food)
-    food_positions = food.deploy_food() # runs the function
+    food_positions = food.deploy_food()  # runs the function
 
     # Check if the number of positions matches the expected number of food items
-    assert len(food_positions) == num_food # checking for the right number of food sources
-    assert np.all(np.logical_and(food_positions >= -15, food_positions <= 15)) # checking if positions are within our expected range
+    assert len(food_positions) == num_food  # checking for the right number of food sources
+    assert np.all(
+        np.logical_and(food_positions >= -15, food_positions <= 15)
+    )  # checking if positions are within our expected range
     # Check if the shape of the positions array is correct
-    assert food_positions.shape == (num_food, 2) # checking for shape
+    assert food_positions.shape == (num_food, 2)  # checking for shape
