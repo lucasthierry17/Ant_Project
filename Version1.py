@@ -11,18 +11,18 @@ class Ants:
         self.positions = np.zeros((num_ants, 2), dtype=float)
         self.directions = np.random.uniform(0, 360, size=num_ants)
 
-    def movement(self, perception_radius, approach_speed, edge_turn_region=15):
+    def movement(self, perception_radius, approach_speed, edge_turn_region=50):
         """this function is for the steps of the ants. First, the ants receive a random direction (self.directions). After the first step, they have a angle of view (right now -40 to 40 degrees). They walk randomly in this site of view. For each step they get a direction (-40 to 40 degrees) and take a step in that direction. If they enter the edge_region, they turn around and take the next step in the opposite direction
         Input: perception_radius, approach_speed, edge_turn_region
         """
 
-        cos_directions = np.cos(np.radians(self.directions))
-        sin_directions = np.sin(np.radians(self.directions))
+        cos_directions = np.cos(np.radians(self.directions)) # chooses the direction on the x axis
+        sin_directions = np.sin(np.radians(self.directions)) # same on the y axis
 
         for ant in range(len(self.positions)):      
             x, y = self.positions[ant]
-            next_x = x + cos_directions[ant]
-            next_y = y + sin_directions[ant]
+            next_x = x + cos_directions[ant] # computes the next x coordinates
+            next_y = y + sin_directions[ant] # computes the next y coordinates
 
            
             # Check if the next position is within the board boundaries
@@ -31,7 +31,7 @@ class Ants:
                 y = next_y
             else:
                 # Ant is approaching the edge
-                if abs(next_x) > 20 - edge_turn_region or abs(next_y) > 20 - edge_turn_region:
+                if abs(next_x) > board_x - edge_turn_region or abs(next_y) > board_y - edge_turn_region:
                     # Turn around 180 degrees
                     self.directions[ant] += 180
                 else:
@@ -101,8 +101,8 @@ class Board:
         plt.title(f"Step {step + 1}/{num_steps}")
         plt.xlabel("X Coordinate")
         plt.ylabel("Y Coordinate")
-        plt.xlim(-20, 20)
-        plt.ylim(-20, 20)
+        plt.xlim(-board_x, board_x) 
+        plt.ylim(-board_y, board_y)
         plt.grid(True)
 
     def simulate(self, num_steps, perception_radius, approach_speed):
@@ -130,6 +130,8 @@ num_ants = 100
 num_food = 10
 perception_radius = 2
 approach_speed = 0.5
+board_x = 20
+board_y = 20
 
 start_time = time.time()
 board = Board(num_ants, num_food)
