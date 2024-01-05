@@ -16,15 +16,14 @@ class Ants:
         Input: perception_radius, approach_speed, edge_turn_region
         """
 
-        cos_directions = np.cos(np.radians(self.directions)) # chooses the direction on the x axis
-        sin_directions = np.sin(np.radians(self.directions)) # same on the y axis
+        cos_directions = np.cos(np.radians(self.directions))  # chooses the direction on the x axis
+        sin_directions = np.sin(np.radians(self.directions))  # same on the y axis
 
-        for ant in range(len(self.positions)):      
+        for ant in range(len(self.positions)):
             x, y = self.positions[ant]
-            next_x = x + cos_directions[ant] # computes the next x coordinates
-            next_y = y + sin_directions[ant] # computes the next y coordinates
+            next_x = x + cos_directions[ant]  # computes the next x coordinates
+            next_y = y + sin_directions[ant]  # computes the next y coordinates
 
-           
             # Check if the next position is within the board boundaries
             if -20 <= next_x <= 20 and -20 <= next_y <= 20:
                 x = next_x
@@ -40,8 +39,7 @@ class Ants:
 
             self.positions[ant] = (x, y)
 
-            self.directions[ant] += np.random.uniform(-40, 40)    
-        
+            self.directions[ant] += np.random.uniform(-40, 40)
 
     def perception(self, food, perception_radius):
         """this function contains the way, how the ants can find some food or the nest. It takes in the location of the food and the perception_radius. Every ant starts with none detected_targets. Every ant has a perception radius, in which they can "smell" food items. Every step and for each ant, the code checks, if there are any food_items in their radius."""
@@ -64,7 +62,6 @@ class Ants:
                     direction_to_food /= norm_direction
 
                     self.positions[ant] += direction_to_food * approach_speed
-                
 
         return self.positions
 
@@ -101,7 +98,7 @@ class Board:
         plt.title(f"Step {step + 1}/{num_steps}")
         plt.xlabel("X Coordinate")
         plt.ylabel("Y Coordinate")
-        plt.xlim(-board_x, board_x) 
+        plt.xlim(-board_x, board_x)
         plt.ylim(-board_y, board_y)
         plt.grid(True)
 
