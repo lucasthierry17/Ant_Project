@@ -11,7 +11,7 @@ class Ants:
         self.positions = np.zeros((num_ants, 2), dtype=float)
         self.directions = np.random.uniform(0, 360, size=num_ants)
 
-    def movement(self, perception_radius, approach_speed, edge_turn_region=50):
+    def movement(self, perception_radius, approach_speed, edge_turn_region=1):
         """this function is for the steps of the ants. First, the ants receive a random direction (self.directions). After the first step, they have a angle of view (right now -40 to 40 degrees). They walk randomly in this site of view. For each step they get a direction (-40 to 40 degrees) and take a step in that direction. If they enter the edge_region, they turn around and take the next step in the opposite direction
         Input: perception_radius, approach_speed, edge_turn_region
         """
@@ -19,23 +19,30 @@ class Ants:
         cos_directions = np.cos(np.radians(self.directions))  # chooses the direction on the x axis
         sin_directions = np.sin(np.radians(self.directions))  # same on the y axis
 
+        """This code below creates a continous board, in which the ants can walk everywhere and just appear on the other side of the board
+            
+            # Wrap around if the ant goes beyond the board edges
+            x = (x + board_x) % (2*board_x) - board_x
+            y = (y + board_y) % (2*board_y) - board_y
+            """
+
         for ant in range(len(self.positions)):
             x, y = self.positions[ant]
             next_x = x + cos_directions[ant]  # computes the next x coordinates
             next_y = y + sin_directions[ant]  # computes the next y coordinates
 
             # Check if the next position is within the board boundaries
-            if -20 <= next_x <= 20 and -20 <= next_y <= 20:
+            if -board_x <= next_x <= board_x and -board_y <= next_y <= board_y:
                 x = next_x
                 y = next_y
             else:
-                # Ant is approaching the edge
+                # if the next step of the ant is outside of our board, the ant turns around 180 degrees
                 if abs(next_x) > board_x - edge_turn_region or abs(next_y) > board_y - edge_turn_region:
                     # Turn around 180 degrees
                     self.directions[ant] += 180
-                else:
-                    # Turn slightly around
-                    self.directions[ant] += np.random.uniform(-20, 20)
+                # else:
+                # Turn slightly around
+                #    self.directions[ant] += np.random.uniform(-20, 20)
 
             self.positions[ant] = (x, y)
 
@@ -77,7 +84,7 @@ class Food:
 
 
 class Board:
-    """the board class is for the visualisation of the board and for the simulation."""
+    """the board class is for the visualisation of the board and for the simulation, which runs through every step and displays the current board."""
 
     def __init__(self, num_ants, num_food):
         self.ants = Ants(num_ants)
@@ -123,17 +130,19 @@ class Board:
 
 # Set the number of steps, ants, perception radius, and approach speed
 
-num_steps = 30
-num_ants = 100
+num_steps = 70
+num_ants = 200
 num_food = 10
 perception_radius = 2
 approach_speed = 0.5
-board_x = 20
-board_y = 20
+board_x = 40
+board_y = 40
 
-start_time = time.time()
-board = Board(num_ants, num_food)
+# start_time = time.time() # starts timing
+
+board = Board(num_ants, num_food)  # sets up our board
 board.simulate(num_steps, perception_radius, approach_speed)  # runs the code
-end_time = time.time()
-duration = end_time - start_time
-print(duration)
+
+# end_time = time.time() # ends timing
+# duration = end_time - start_time
+# print(duration)
