@@ -44,7 +44,9 @@ class Ants:
 
                 self.positions[ant] = (x, y)
 
-                self.directions[ant] += np.random.uniform(-40, 40)
+                if show_results:
+                    self.directions[ant] += np.random.uniform(-40, 40)
+
 
     def perception(self, food, perception_radius):
         """this function contains the way, how the ants can find some food or the nest. It takes in the location of the food and the perception_radius. Every ant starts with none detected_targets. Every ant has a perception radius, in which they can "smell" food items. Every step and for each ant, the code checks, if there are any food_items in their radius."""
@@ -70,7 +72,6 @@ class Ants:
 
         return self.positions
 
-
 class Food:
     "this class determines the location of the food_items and deploys them"
 
@@ -81,6 +82,7 @@ class Food:
         return self.positions
 
 
+
 class Board:
     """the board class is for the visualisation of the board and for the simulation, which runs through every step and displays the current board."""
 
@@ -88,30 +90,34 @@ class Board:
         self.ants = Ants(num_ants)
         self.food = Food(num_food)
 
+
     def visualize(self, detected_food, step):
-        
-            
-        plt.scatter(
-            self.ants.positions[:, 0], self.ants.positions[:, 1], marker="x", color="b"
-        )  # creates Ants as red "x"
-        plt.scatter(
-            self.food.positions[:, 0], self.food.positions[:, 1], marker="o", color="g"
-        )  # creates food sources as green "o"
+        if show_results:
+            plt.scatter(
+                self.ants.positions[:, 0], self.ants.positions[:, 1], marker="x", color="b"
+            )
+            plt.scatter(
+                self.food.positions[:, 0], self.food.positions[:, 1], marker="o", color="g"
+            )
 
-        for ant, detected in enumerate(detected_food):
-            if detected:
-                plt.plot(self.ants.positions[ant, 0], self.ants.positions[ant, 1], "rx")
+            for ant, detected in enumerate(detected_food):
+                if detected:
+                    plt.plot(self.ants.positions[ant, 0], self.ants.positions[ant, 1], "rx")
 
-        plt.title(f"Step {step + 1}/{num_steps}")
-        plt.xlabel("X Coordinate")
-        plt.ylabel("Y Coordinate")
-        plt.xlim(-board_x, board_x)
-        plt.ylim(-board_y, board_y)
-        plt.grid(True)
+            plt.title(f"Step {step + 1}/{num_steps}")
+            plt.xlabel("X Coordinate")
+            plt.ylabel("Y Coordinate")
+            plt.xlim(-board_x, board_x)
+            plt.ylim(-board_y, board_y)
+            plt.grid(True)
+            plt.pause(0.3)
+            plt.clf()
 
     def simulate(self, num_steps, perception_radius, approach_speed):
-        plt.ion()
-        fig, ax = plt.subplots()
+        if show_results:
+        
+            plt.ion()
+            fig, ax = plt.subplots()
 
         for step in range(num_steps):
             self.ants.movement(perception_radius, approach_speed)
@@ -119,32 +125,34 @@ class Board:
             self.ants.positions = self.ants.approach_food(self.food, detected_food, approach_speed)
 
             self.visualize(detected_food, step)
+            if show_results:
 
-            plt.pause(0.3)
-            plt.clf()
+                plt.pause(0.3)
+                plt.clf()
+        if show_results:
+            plt.ioff()
+            plt.show()
+            plt.close()
 
-        plt.ioff()
-        plt.show()
-        plt.close()
 
 
 # Set the number of steps, ants, perception radius, and approach speed
-
-num_steps = 70
-num_ants = 200
+num_steps = 10
+num_ants = 20
 num_food = 10
 perception_radius = 2
 approach_speed = 0.5
 board_x = 40
 board_y = 40
-starting_point = [0, 0] # please use the location of the nest
+starting_point = [0, 0]
 Continues_Board = False
+show_results = True  # Set this variable to True to visualize the results
 
-# start_time = time.time() # starts timing
+# start_time = time.time()
 
-board = Board(num_ants, num_food)  # sets up our board
-board.simulate(num_steps, perception_radius, approach_speed)  # runs the code
+board = Board(num_ants, num_food)
+board.simulate(num_steps, perception_radius, approach_speed)
 
-# end_time = time.time() # ends timing
+# end_time = time.time()
 # duration = end_time - start_time
 # print(duration)
