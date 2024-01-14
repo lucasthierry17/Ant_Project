@@ -9,10 +9,17 @@ class Ants:
     def __init__(self, num_ants):
         self.positions = np.zeros((num_ants, 2)) # ants start at [0, 0]
         self.directions = np.random.uniform(0, 360, size=num_ants) # degree between 0 and 360
+        self.carrying_food = np.zeros(num_ants, dtype=bool)
 
-    def movement(self, perception_radius, approach_speed, edge_turn_region=1):
+    def calculate_direction(self, start, target):
+        direction_vector = target - start
+        direction = direction_vector / np.linalg.norm(direction_vector)
+        return direction
+
+
+    def movement(self, edge_turn_region=1):
         """this function is for the steps of the ants. First, the ants receive a random direction (self.directions). After the first step, they have a angle of view (right now -40 to 40 degrees). They walk randomly in this site of view. For each step they get a direction (-40 to 40 degrees) and take a step in that direction. If they enter the edge_region, they turn around and take the next step in the opposite direction
-        Input: perception_radius, approach_speed, edge_turn_region
+        Input: edge_turn_region
         """
 
         cos_directions = np.cos(np.radians(self.directions))  # chooses the direction on the x axis
@@ -38,10 +45,7 @@ class Ants:
                     if abs(next_x) > board_x - edge_turn_region or abs(next_y) > board_y - edge_turn_region:
                         # Turn around 180 degrees
                         self.directions[ant] += 180
-                    # else:
-                    # Turn slightly around
-                    #    self.directions[ant] += np.random.uniform(-20, 20)
-
+                   
                 self.positions[ant] = (x, y)
 
                 self.directions[ant] += np.random.uniform(-40, 40)
@@ -59,7 +63,7 @@ class Ants:
     def approach_food(self, food, detected_food, approach_speed):
         """this function determines how to ants approch the food. The function takes in the location of the food, the detected_food from every ant and the approch_speed. The approch_speed determines how fast the ants move towards the food, if they have detected anything. This function is only in use, if an ant has detected a food_item. If an ant detects several food_items inside of their radius, then the distance is calculated and the ants move to the closest one. In the end, the position of the ant is updated towards the food_item"""
         for ant, detected in enumerate(detected_food):
-            if detected:
+            if detected and not self.carrying_food[ant]:
                 nearest_food_index = np.argmin(np.linalg.norm(food.positions - self.positions[ant], axis=1))
                 direction_to_food = food.positions[nearest_food_index] - self.positions[ant]
                 norm_direction = np.linalg.norm(direction_to_food)
@@ -69,6 +73,24 @@ class Ants:
                     self.positions[ant] += direction_to_food * approach_speed
 
         return self.positions
+    
+    def return_home(self, ant):
+        
+         # if the ant is carrying food
+        for ant in range(len(self.positions)):
+                
+
+            direction_to_home = self.calculate_direction(self.positions[ant], board.nest_pos)
+            self.positions[ant] += direction_to_home * (approach_speed)
+
+            # Check if the ant has reached home (you can modify this condition based on your needs)
+            if np.linalg.norm(self.positions[ant] - board.nest_pos) < 0.5:
+                # Ant has reached home, reset the flag to search for food again
+                self.carrying_food[ant] = False
+            else: 
+                self.movement() # call the movement function
+            
+        return self.positions 
 
 
 class Food:
@@ -87,6 +109,7 @@ class Board:
     def __init__(self, num_ants, num_food):
         self.ants = Ants(num_ants)
         self.food = Food(num_food)
+        self.nest_pos = np.array([0,0])
 
     def visualize(self, detected_food, step):
         
@@ -111,12 +134,13 @@ class Board:
 
     def simulate(self, num_steps, perception_radius, approach_speed):
         plt.ion()
-        fig, ax = plt.subplots()
+        
 
         for step in range(num_steps):
-            self.ants.movement(perception_radius, approach_speed)
-            detected_food = self.ants.perception(self.food, perception_radius)
-            self.ants.positions = self.ants.approach_food(self.food, detected_food, approach_speed)
+            detected_food = self.ants.perception(self.food, perception_radius)   
+               
+            self.ants.return_home(self.ants.positions)            
+            self.ants.positions = self.ants.approach_food(self.food, detected_food, approach_speed)   
 
             self.visualize(detected_food, step)
 
@@ -130,8 +154,8 @@ class Board:
 
 # Set the number of steps, ants, perception radius, and approach speed
 
-num_steps = 70
-num_ants = 200
+num_steps = 20
+num_ants = 20
 num_food = 10
 perception_radius = 2
 approach_speed = 0.5
@@ -140,11 +164,8 @@ board_y = 40
 starting_point = [0, 0] # please use the location of the nest
 Continues_Board = False
 
-# start_time = time.time() # starts timing
 
 board = Board(num_ants, num_food)  # sets up our board
 board.simulate(num_steps, perception_radius, approach_speed)  # runs the code
 
-# end_time = time.time() # ends timing
-# duration = end_time - start_time
-# print(duration)
+
