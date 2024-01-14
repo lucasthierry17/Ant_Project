@@ -15,7 +15,10 @@ class Map:
         self.screen = pygame.display.set_mode((self.width, self.height))
         pygame.display.set_caption('Ants')
         self.clock = pygame.time.Clock() # Clock Object
-
+        self.color = [255, 255, 255]
+        # Creating a white background
+        
+        self.screen.fill(self.color)
     def ant_nest():
         """
         Nest wird zufällig auf der Karte platziert und enthält alle Ameisen.
