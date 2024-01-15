@@ -5,8 +5,8 @@ import os
 import random
 import numpy as np
 
-WIDTH = 700
-HEIGHT = 700
+WIDTH = 1000
+HEIGHT = 1000
 
 class Food:
     """
@@ -25,7 +25,7 @@ class Food:
         self.red_apple = pygame.image.load(f"graphics/red_apple.png")
         self.plum = pygame.image.load(f"graphics/plum.png")
         self.food = [self.green_apple, self.red_apple, self.plum]
-        self.DEFAULT_IMAGE_SIZE = (self.WIDTH*0.08, self.HEIGHT*0.08)
+        self.DEFAULT_IMAGE_SIZE = (self.WIDTH*0.05, self.HEIGHT*0.05)
 
 
     def food_sources(self, food_life_span = 100):
@@ -37,8 +37,8 @@ class Food:
         # List that contain tuples for all the positions
         self.positions = {}
         for i in range(self.amnt_food):
-            self.x = random.randint(0, self.WIDTH)
-            self.y = random.randint(0, self.HEIGHT)
+            self.x = random.randint(0, self.WIDTH - 100)
+            self.y = random.randint(0, self.HEIGHT - 100)
             self.position = (self.x, self.y)
 
             self.spawn = self.scaled_food[random.randint(0,len(self.food)-1)]
