@@ -21,12 +21,17 @@ class Food:
         self.life_span = life_span
         self.WIDTH = width
         self.HEIGHT = height
-        self.green_apple = pygame.image.load("graphics/green_apple.png")
-        self.red_apple = pygame.image.load(f"graphics/red_apple.png")
-        self.plum = pygame.image.load(f"graphics/plum.png")
+
+        # Importing fruits
+        self.green_apple = pygame.image.load("graphics/green_apple.png").convert_alpha() # for better time results
+        self.red_apple = pygame.image.load(f"graphics/red_apple.png").convert_alpha() # for better time results
+        self.plum = pygame.image.load(f"graphics/plum.png").convert_alpha() # for better time results
         self.food = [self.green_apple, self.red_apple, self.plum]
         self.DEFAULT_IMAGE_SIZE = (self.WIDTH*0.05, self.HEIGHT*0.05)
 
+        # Importing Ant
+        self.ant = pygame.image.load("graphics/ant.png").convert_alpha()
+        self.scaled_ant = pygame.transform.scale(self.ant, self.DEFAULT_IMAGE_SIZE)
 
     def food_sources(self, food_life_span = 100):
 
@@ -69,11 +74,13 @@ class Map:
         self.spawn_counter = 0
 
 
-    def ant_nest():
+    def ant_nest(self, num_ants = 100):
         """
         Nest wird zufällig auf der Karte platziert und enthält alle Ameisen.
         Die Anzahl an Ameisen können mittels eines Inputs festgelegt werden.
         """
+        self.position
+
         pass
 
     def obstacle():
