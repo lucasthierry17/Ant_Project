@@ -4,12 +4,108 @@ import time
 import os
 import random
 import numpy as np
-from Ant import Ants
 
-WIDTH = 1000
-HEIGHT = 1000
+WIDTH = 800
+HEIGHT = 800
 FOOD_LIFE_SPAN = 100
 NUM_OF_ANTS = 10
+
+
+class Ant:
+    def __init__(self,):
+        self.food = Food(WIDTH, HEIGHT)
+        self.DEFAULT_ANT_SIZE = (int(0.1*WIDTH), int(0.1*HEIGHT))
+            
+
+    def looks(self):
+        """
+        Hier wird das Aussehen der Ameisen definiert.
+        """
+        self.ant = pygame.image.load("graphics/ant.png").convert_alpha()
+        self.scaled_ant = pygame.transform.scale(self.ant, (int(self.DEFAULT_ANT_SIZE[0]*0.5), int(self.DEFAULT_ANT_SIZE[1]*0.5)))
+        self.ant_rect = self.scaled_ant.get_rect(center = (int(WIDTH*0.5), int(HEIGHT*0.5)))
+        #self.ant_rect = self.scaled_ant.get_rect(center = (int(0.5*map.WIDTH), int(0.5*map.HEIGHT)))
+        return self.scaled_ant
+    
+    def movement(self):
+        """
+        Hier wird die Bewegung der Ameise festgelegt. Sie kann in allen Richtungen unendlich weit laufen
+        Die Bewegung geschieht zufällig und hat vor dem Entdecken der Nahrung keine Regeln.
+        Bei jeder Bewgung werden Pheromone freigesetzt, die später näher definiert werden.
+        Das Nest wird zufällig auf der Karte in map.py gesetzt. Wichtig ist, dass die Ameise ihren Startpunkt kennt und dass jener in einer Variabel gespeichert wird.
+        Diese Info wird nämlich später in der memory-Funktion wichtig.
+        """
+
+
+        pass
+
+    def spawn_ant(self):
+        '''
+        Places a Rectangle on the ant, which makes it easir to move the ant around
+        '''
+        self.ant_rect = self.scaled_ant.get_rect(center = (int(WIDTH*0.5), int(HEIGHT*0.5)))
+        return self.ant_rect
+    
+    def memory():
+        """
+        In der Erinnerung werden die wichtigsten Datenpunkte auf der Karte gespeichert:
+        Die Futterquellen, Das Nest, Hindernisse etc.
+        Diese werden von der Ameise entweder angepeilt oder gemieden.
+        Die Erinnerung der Ameise, wird natürlich immer wieder aktualisiert, sofern sie eine neue Futterquelle entdeckt oder die bereits bekannte
+        Futterquelle verbraucht ist.
+        """
+        pass
+
+    def perception():
+        """
+        Hier wird die Wahrnehmung der Ameise festegelegt. Die Ameise kann in einem gewissen Umkreis ihre Umgebeung wahrnehmen und
+        mögliche Futterquellen oder Futterkanäle identifizieren.
+        Diese könnten in der memory der Ameise gespeichert werden.
+        """
+        pass
+
+    def pheromone():
+        """
+        Die Pheromone der Ameisen legen ihren "Status" fest. Die Pheromone werden auf ihrem Pfad entlang ausgelassen:
+        Status: Nahrung gefunden.
+        Status: Keine Nahrung und auf der Suche nach Nahrung.
+
+        """
+        pass
+
+    def approach():
+        """
+        Für Hindernisse um sie zu identifizieren???
+        """
+        pass
+
+    def gohome():
+        """
+        Ist sehr trivial. Wie der Name schon sagt sorgt diese Funktion dafür, dass die Ameise wieder zurück in ihr Nest gelangt.
+        Am besten ist der kürzeste Weg dahin.
+        """
+        pass
+
+    def die():
+        """
+        Ist sehr trivial. Sobald die Ameise ein Hindernis nicht erkennt stirbt sie. (Mögliche Hindernisse:
+        Loch, Pfütze,....)
+        """
+        pass
+
+    def take_food():
+        """
+        Sobald die Ameise die Nahrungsquelle gefunden hat soll die Ameise, die Nahrung aufnehmen.
+        Damit ändert sich der pheromonen Status und die Ameise macht sich auf den Weg ins Nest.
+        """
+        pass
+
+    def follow_pheromone():
+        """
+        follow_pheromone macht genau das was der Name sagt. Soabld die Ameise die Pheromonen der anderen Ameisen wahrnimmt
+        und diese auf den Status "Nahrung gefunden gesetzt sind", dann beginnt die Ameise dieser Spur zu folgen bis sie eine Nahrungsquelle gefunden hat
+        um ihren Pheromonen Status auch zu ändern.
+        """ 
 
 
 class Food:
@@ -25,7 +121,7 @@ class Food:
         self.life_span = life_span
         self.WIDTH = width
         self.HEIGHT = height
-        self.DEFAULT_IMAGE_SIZE = (self.WIDTH*0.06, self.HEIGHT*0.06)
+        self.DEFAULT_IMAGE_SIZE = (self.WIDTH*0.08, self.HEIGHT*0.08)
         
 
         # Importing fruits
@@ -82,7 +178,7 @@ class Map:
         self.scaled_ant = pygame.transform.scale(self.ant, (int(self.spawns.DEFAULT_IMAGE_SIZE[0]*0.5), int(self.spawns.DEFAULT_IMAGE_SIZE[1]*0.5)))
         self.ant_rect = self.scaled_ant.get_rect(center = (int(0.5*self.WIDTH), int(0.5*self.HEIGHT)))"""
 
-        self.ant = Ants()
+        self.ant = Ant()
 
     def ant_nest(self, num_ants=NUM_OF_ANTS):
         """
@@ -91,7 +187,7 @@ class Map:
         """
         #spawning the Ants:
         for i in range(num_ants):
-            self.screen.blit(self.ant.looks(), self.ant.spawn_ant())
+            self.screen.blit(self.ant.looks(), self.ant.ant_rect)
             print(f"{i}te Ameise wurde platzier")
         
 
