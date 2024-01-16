@@ -4,11 +4,13 @@ import time
 import os
 import random
 import numpy as np
-from Ant import NUM_OF_ANTS
+from Ant import Ants
 
 WIDTH = 1000
 HEIGHT = 1000
 FOOD_LIFE_SPAN = 100
+NUM_OF_ANTS = 10
+
 
 class Food:
     """
@@ -24,6 +26,7 @@ class Food:
         self.WIDTH = width
         self.HEIGHT = height
         self.DEFAULT_IMAGE_SIZE = (self.WIDTH*0.06, self.HEIGHT*0.06)
+        
 
         # Importing fruits
         self.green_apple = pygame.image.load("graphics/green_apple.png").convert_alpha() # for better time results
@@ -33,9 +36,6 @@ class Food:
         self.food = [self.green_apple, self.red_apple, self.plum]
         self.scaled_food = [pygame.transform.scale(food, self.DEFAULT_IMAGE_SIZE) for food in self.food]
 
-        # Importing Ant
-        self.ant = pygame.image.load("graphics/ant.png").convert_alpha()
-        self.scaled_ant = pygame.transform.scale(self.ant, self.DEFAULT_IMAGE_SIZE)
 
     def food_sources(self, food_life_span = FOOD_LIFE_SPAN):
 
@@ -77,14 +77,23 @@ class Map:
         self.spawn_counter = 0
         self.spawns = Food()
 
-    def ant_nest(self, num_ants = NUM_OF_ANTS):
+        # Importing Ant
+        """self.ant = pygame.image.load("graphics/ant.png").convert_alpha()
+        self.scaled_ant = pygame.transform.scale(self.ant, (int(self.spawns.DEFAULT_IMAGE_SIZE[0]*0.5), int(self.spawns.DEFAULT_IMAGE_SIZE[1]*0.5)))
+        self.ant_rect = self.scaled_ant.get_rect(center = (int(0.5*self.WIDTH), int(0.5*self.HEIGHT)))"""
+
+        self.ant = Ants()
+
+    def ant_nest(self, num_ants=NUM_OF_ANTS):
         """
         Nest wird zufällig auf der Karte platziert und enthält alle Ameisen.
         Die Anzahl an Ameisen können mittels eines Inputs festgelegt werden.
         """
+        #spawning the Ants:
+        for i in range(num_ants):
+            self.screen.blit(self.ant.looks(), self.ant.spawn_ant())
+            print(f"{i}te Ameise wurde platzier")
         
-
-        pass
 
     def obstacle():
         """
@@ -124,11 +133,12 @@ class Map:
                     self.mouse_pos = pygame.mouse.get_pos()
                     self.random_fruit = self.spawns.scaled_food[random.randint(0, len(self.spawns.scaled_food) - 1)]
                     self.random_fruit_rect = self.random_fruit.get_rect(center = self.mouse_pos)
-                    pygame.draw.circle(self.screen, (230, 230, 230), self.mouse_pos, int(1.5*self.spawns.DEFAULT_IMAGE_SIZE[1])) #(r, g, b) is color, (x, y) is center, R is radius and w is the thickness of the circle border.
+                    pygame.draw.circle(self.screen, (230, 230, 230), self.mouse_pos, 1.5*self.spawns.DEFAULT_IMAGE_SIZE[1]) #(r, g, b) is color, (x, y) is center, R is radius and w is the thickness of the circle border.
                     self.screen.blit(self.random_fruit, self.random_fruit_rect)
                 
             if self.spawn_counter == 0:
                 self.spawn_food()
+                self.ant_nest()
                 self.spawn_counter += 1
                 
 
