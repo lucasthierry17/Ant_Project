@@ -15,19 +15,18 @@ class Ant:
     def __init__(self,):
         self.food = Food(WIDTH, HEIGHT)
         self.DEFAULT_ANT_SIZE = (int(0.1*WIDTH), int(0.1*HEIGHT))
-            
 
-    def looks(self):
-        """
-        Hier wird das Aussehen der Ameisen definiert.
-        """
+        # Position of the Ant
+        self.ant_x = int(self.DEFAULT_ANT_SIZE[0]*0.25)
+        self.ant_y = int(self.DEFAULT_ANT_SIZE[1]*0.25)
+            
         self.ant = pygame.image.load("graphics/ant.png").convert_alpha()
-        self.scaled_ant = pygame.transform.scale(self.ant, (int(self.DEFAULT_ANT_SIZE[0]*0.5), int(self.DEFAULT_ANT_SIZE[1]*0.5)))
-        self.ant_rect = self.scaled_ant.get_rect(center = (int(WIDTH*0.5), int(HEIGHT*0.5)))
+        self.scaled_ant = pygame.transform.scale(self.ant, (self.ant_x, self.ant_y))
+        self.ant_rect = self.scaled_ant.get_rect(center = (int(WIDTH*0.5), int(HEIGHT*0.5))) # The rectangle is going to be placed in map.visualize (being in the center of the window)
         #self.ant_rect = self.scaled_ant.get_rect(center = (int(0.5*map.WIDTH), int(0.5*map.HEIGHT)))
-        return self.scaled_ant
+        
     
-    def movement(self):
+    def movement(self, rectangle):
         """
         Hier wird die Bewegung der Ameise festgelegt. Sie kann in allen Richtungen unendlich weit laufen
         Die Bewegung geschieht zufällig und hat vor dem Entdecken der Nahrung keine Regeln.
@@ -37,16 +36,37 @@ class Ant:
         """
 
 
-        pass
+        ''' To Move the Ants, we need to move the rectangle of the ant. 
+            Since the window is like a coordinate system, we have to adjust the x and y values of the rectangle to get it moving'''
+        angle = 0
+        self.speed = 7  # Defining the value/speed
+        self.random_direction = random.randint(1,4) 
+        print(self.random_direction)
+        # Moving the ant in several directions
+        if self.random_direction == 1:
+            rectangle.x += self.speed
+            #rectangle.y += self.speed
+            angle = 90
 
-    def spawn_ant(self):
-        '''
-        Places a Rectangle on the ant, which makes it easir to move the ant around
-        '''
-        self.ant_rect = self.scaled_ant.get_rect(center = (int(WIDTH*0.5), int(HEIGHT*0.5)))
-        return self.ant_rect
-    
-    def memory():
+        elif self.random_direction == 2:
+            rectangle.x -= self.speed
+            #rectangle.y -= self.speed # Moving Left
+            angle = 270
+
+        elif self.random_direction == 3:
+            rectangle.y += self.speed
+            #rectangle.x += self.speed
+            angle = 180
+
+        elif self.random_direction == 4:
+            rectangle.y -= self.speed
+            #rectangle.x -= self.speed # Moving Up
+            angle = 0
+            
+        self.scaled_ant = pygame.transform.rotate(self.scaled_ant, angle)
+        
+
+    def memory(self):
         """
         In der Erinnerung werden die wichtigsten Datenpunkte auf der Karte gespeichert:
         Die Futterquellen, Das Nest, Hindernisse etc.
@@ -54,6 +74,9 @@ class Ant:
         Die Erinnerung der Ameise, wird natürlich immer wieder aktualisiert, sofern sie eine neue Futterquelle entdeckt oder die bereits bekannte
         Futterquelle verbraucht ist.
         """
+        # Dictionary in dem das Zuhasue gespeichert wird
+        self.local_points = []
+
         pass
 
     def perception():
@@ -153,8 +176,6 @@ class Map:
         """
         Hier wird die Größe der Karte festgelegt.
         """
-        
-
         #Width and Height of the window
         self.WIDTH = width
         self.HEIGHT = height
@@ -164,31 +185,35 @@ class Map:
         self.screen = pygame.display.set_mode((self.WIDTH, self.HEIGHT))
         pygame.display.set_caption('Ants')
         self.clock = pygame.time.Clock() # Clock Object
-        
+
         # Creating a white background
-        self.color = [255, 255, 255]
-        self.screen.fill(self.color)
+        self.color = [0, 0, 0]
+        self.rect_dimensions = pygame.Rect(0, 0, self.WIDTH, self.HEIGHT)
+        self.rectangle = pygame.draw.rect(self.screen, self.color, self.rect_dimensions)
 
         #Spawned_Counter:
         self.spawn_counter = 0
         self.spawns = Food()
+        self.random_fruit_rect = None
 
-        # Importing Ant
-        """self.ant = pygame.image.load("graphics/ant.png").convert_alpha()
-        self.scaled_ant = pygame.transform.scale(self.ant, (int(self.spawns.DEFAULT_IMAGE_SIZE[0]*0.5), int(self.spawns.DEFAULT_IMAGE_SIZE[1]*0.5)))
-        self.ant_rect = self.scaled_ant.get_rect(center = (int(0.5*self.WIDTH), int(0.5*self.HEIGHT)))"""
+        self.background = pygame.image.load("graphics/background.jpg").convert_alpha()
+        self.black_background = pygame.image.load("graphics/black_backround.jpg").convert_alpha()
 
         self.ant = Ant()
+        self.ant_rects = []
 
     def ant_nest(self, num_ants=NUM_OF_ANTS):
         """
         Nest wird zufällig auf der Karte platziert und enthält alle Ameisen.
         Die Anzahl an Ameisen können mittels eines Inputs festgelegt werden.
         """
-        #spawning the Ants:
+
+        #spawning the Ants and saving their rectangle in a list:
         for i in range(num_ants):
-            self.screen.blit(self.ant.looks(), self.ant.ant_rect)
-            print(f"{i}te Ameise wurde platzier")
+            ant_rect = self.ant.ant_rect.copy()
+            self.ant_rects.append(ant_rect)
+            self.screen.blit(self.ant.scaled_ant, self.ant.ant_rect)
+            print(f"{i}te Ameise wurde platziert")
         
 
     def obstacle():
@@ -232,11 +257,24 @@ class Map:
                     pygame.draw.circle(self.screen, (230, 230, 230), self.mouse_pos, 1.5*self.spawns.DEFAULT_IMAGE_SIZE[1]) #(r, g, b) is color, (x, y) is center, R is radius and w is the thickness of the circle border.
                     self.screen.blit(self.random_fruit, self.random_fruit_rect)
                 
+            # Placing Background:
+            self.screen.blit(self.black_background,(0,0))
+
+            if self.random_fruit_rect:
+                self.screen.blit(self.random_fruit, self.random_fruit_rect)
+
+
             if self.spawn_counter == 0:
-                self.spawn_food()
                 self.ant_nest()
+                self.spawn_food()
                 self.spawn_counter += 1
-                
+            
+                    
+            for ant in self.ant_rects:
+                self.ant.movement(ant)
+                self.screen.blit(self.ant.scaled_ant, ant)
+
+            
 
             pygame.display.update()
             self.clock.tick(60) # 60fps
