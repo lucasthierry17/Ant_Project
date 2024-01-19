@@ -5,20 +5,21 @@ import os
 import random
 import numpy as np
 
-WIDTH = 800
-HEIGHT = 800
+WIDTH = 900
+HEIGHT = 900
 FOOD_LIFE_SPAN = 100
-NUM_OF_ANTS = 10
+NUM_OF_ANTS = 500
 
 
 class Ant:
-    def __init__(self,):
+    def __init__(self, NUM_OF_ANTS = NUM_OF_ANTS):
         self.food = Food(WIDTH, HEIGHT)
         self.DEFAULT_ANT_SIZE = (int(0.1*WIDTH), int(0.1*HEIGHT))
 
         # Position of the Ant
         self.ant_x = int(self.DEFAULT_ANT_SIZE[0]*0.25)
         self.ant_y = int(self.DEFAULT_ANT_SIZE[1]*0.25)
+        
             
         self.ant = pygame.image.load("graphics/ant.png").convert_alpha()
         self.scaled_ant = pygame.transform.scale(self.ant, (self.ant_x, self.ant_y))
@@ -26,7 +27,7 @@ class Ant:
         #self.ant_rect = self.scaled_ant.get_rect(center = (int(0.5*map.WIDTH), int(0.5*map.HEIGHT)))
         
     
-    def movement(self, rectangle):
+    def movement(self, index, ant_rects):
         """
         Hier wird die Bewegung der Ameise festgelegt. Sie kann in allen Richtungen unendlich weit laufen
         Die Bewegung geschieht zufällig und hat vor dem Entdecken der Nahrung keine Regeln.
@@ -38,33 +39,30 @@ class Ant:
 
         ''' To Move the Ants, we need to move the rectangle of the ant. 
             Since the window is like a coordinate system, we have to adjust the x and y values of the rectangle to get it moving'''
-        angle = 0
-        self.speed = 7  # Defining the value/speed
-        self.random_direction = random.randint(1,4) 
-        print(self.random_direction)
-        # Moving the ant in several directions
-        if self.random_direction == 1:
-            rectangle.x += self.speed
-            #rectangle.y += self.speed
-            angle = 90
-
-        elif self.random_direction == 2:
-            rectangle.x -= self.speed
-            #rectangle.y -= self.speed # Moving Left
-            angle = 270
-
-        elif self.random_direction == 3:
-            rectangle.y += self.speed
-            #rectangle.x += self.speed
-            angle = 180
-
-        elif self.random_direction == 4:
-            rectangle.y -= self.speed
-            #rectangle.x -= self.speed # Moving Up
-            angle = 0
-            
-        self.scaled_ant = pygame.transform.rotate(self.scaled_ant, angle)
         
+
+        # Defining cos and sin directions
+        self.ant_directions = np.random.uniform(0,360, size=NUM_OF_ANTS)
+
+        self.cos_directions = np.cos(np.radians(self.ant_directions))  # chooses the direction on the x axis
+        self.sin_directions = np.sin(np.radians(self.ant_directions))
+        # Defining x_speed, y_speed:
+        x_speed, y_speed = self.cos_directions[index], self.sin_directions[index]
+
+        # Geschwindigkeit skalieren, damit die Bewegung signifikant ist
+        #print(x_speed)
+        ant_rects.x += x_speed*5
+        ant_rects.y += y_speed*5
+        #print(self.ant_directions)
+
+        # Prüfe, ob die nächste Position außerhalb des Fensters liegt
+        if ant_rects.right >= WIDTH or ant_rects.left <= 0:
+            x_speed *= -1
+        
+        if ant_rects.bottom >= HEIGHT or ant_rects.top <= 0:
+            y_speed *= -1
+
+
 
     def memory(self):
         """
@@ -216,19 +214,11 @@ class Map:
             print(f"{i}te Ameise wurde platziert")
         
 
-    def obstacle():
-        """
-        Die Nahrungsquellen werden ebenfalls zufällig auf der Karte platziert.
-        Man kann ein int mitangeben um die Anzahl an Nahrungsquellen festzulegen.
-        """
-        pass
-
     def spawn_food(self):
         """
         This function spawns the food in front of a circle that symbolizes the zone of the food. 
         In That way, if an ant approches the 
         """
-      
         self.spawn_position = self.spawns.food_sources()
         print(self.spawn_position)
         pygame.draw.circle(self.screen, (230, 230, 230), self.spawn_position.center, 1.5*self.spawns.DEFAULT_IMAGE_SIZE[1]) #(r, g, b) is color, (x, y) is center, R is radius and w is the thickness of the circle border.
@@ -248,8 +238,10 @@ class Map:
                 elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 3:
                     # Spawning random food sources with right click
                     self.spawn_food()
-                    
-                elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+
+                self.mouse_position = []
+
+                if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                     # Spawning food sources at the position of the mouse courser
                     self.mouse_pos = pygame.mouse.get_pos()
                     self.random_fruit = self.spawns.scaled_food[random.randint(0, len(self.spawns.scaled_food) - 1)]
@@ -269,15 +261,18 @@ class Map:
                 self.spawn_food()
                 self.spawn_counter += 1
             
-                    
-            for ant in self.ant_rects:
-                self.ant.movement(ant)
+            
+
+            for index, ant in enumerate(self.ant_rects):
+                self.ant.movement(index, ant)
                 self.screen.blit(self.ant.scaled_ant, ant)
+
 
             
 
             pygame.display.update()
             self.clock.tick(60) # 60fps
+
         
 
 if __name__ == '__main__':
