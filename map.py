@@ -8,60 +8,59 @@ import numpy as np
 WIDTH = 900
 HEIGHT = 900
 FOOD_LIFE_SPAN = 100
-NUM_OF_ANTS = 500
+NUM_OF_ANTS = 250
 
 
 class Ant:
     def __init__(self, NUM_OF_ANTS = NUM_OF_ANTS):
         self.food = Food(WIDTH, HEIGHT)
-        self.DEFAULT_ANT_SIZE = (int(0.1*WIDTH), int(0.1*HEIGHT))
+        self.DEFAULT_ANT_SIZE = (int(0.1 * WIDTH), int(0.1 * HEIGHT))
 
         # Position of the Ant
-        self.ant_x = int(self.DEFAULT_ANT_SIZE[0]*0.25)
-        self.ant_y = int(self.DEFAULT_ANT_SIZE[1]*0.25)
-        
-            
+        self.ant_x = int(self.DEFAULT_ANT_SIZE[0] * 0.25)
+        self.ant_y = int(self.DEFAULT_ANT_SIZE[1] * 0.25)
+        self.circular = []
+        for i in range(NUM_OF_ANTS):
+            rn = random.randint(0,360)
+            self.circular.append(rn)
         self.ant = pygame.image.load("graphics/ant.png").convert_alpha()
         self.scaled_ant = pygame.transform.scale(self.ant, (self.ant_x, self.ant_y))
-        self.ant_rect = self.scaled_ant.get_rect(center = (int(WIDTH*0.5), int(HEIGHT*0.5))) # The rectangle is going to be placed in map.visualize (being in the center of the window)
-        #self.ant_rect = self.scaled_ant.get_rect(center = (int(0.5*map.WIDTH), int(0.5*map.HEIGHT)))
+        self.ant_rect = self.scaled_ant.get_rect(center=(int(WIDTH * 0.5), int(HEIGHT * 0.5)))
+        self.restore_x = 1
+        self.restore_y = 1
+
+    def movement(self, index, ant_rect):
         
-    
-    def movement(self, index, ant_rects):
-        """
-        Hier wird die Bewegung der Ameise festgelegt. Sie kann in allen Richtungen unendlich weit laufen
-        Die Bewegung geschieht zufällig und hat vor dem Entdecken der Nahrung keine Regeln.
-        Bei jeder Bewgung werden Pheromone freigesetzt, die später näher definiert werden.
-        Das Nest wird zufällig auf der Karte in map.py gesetzt. Wichtig ist, dass die Ameise ihren Startpunkt kennt und dass jener in einer Variabel gespeichert wird.
-        Diese Info wird nämlich später in der memory-Funktion wichtig.
-        """
+        self.ant_directions = []
+        for i in range(NUM_OF_ANTS):
+            rn = random.randint(0,360)
+            self.ant_directions.append(rn)
 
-
-        ''' To Move the Ants, we need to move the rectangle of the ant. 
-            Since the window is like a coordinate system, we have to adjust the x and y values of the rectangle to get it moving'''
+        angle_in_radians = np.radians(self.ant_directions[index])
+        speed = 3
+        x_speed = speed * np.cos(angle_in_radians)
+        y_speed = speed * np.sin(angle_in_radians)
         
-
-        # Defining cos and sin directions
-        self.ant_directions = np.random.uniform(0,360, size=NUM_OF_ANTS)
-
-        self.cos_directions = np.cos(np.radians(self.ant_directions))  # chooses the direction on the x axis
-        self.sin_directions = np.sin(np.radians(self.ant_directions))
-        # Defining x_speed, y_speed:
-        x_speed, y_speed = self.cos_directions[index], self.sin_directions[index]
-
-        # Geschwindigkeit skalieren, damit die Bewegung signifikant ist
-        #print(x_speed)
-        ant_rects.x += x_speed*5
-        ant_rects.y += y_speed*5
-        #print(self.ant_directions)
-
-        # Prüfe, ob die nächste Position außerhalb des Fensters liegt
-        if ant_rects.right >= WIDTH or ant_rects.left <= 0:
-            x_speed *= -1
+        ant_rect.x += x_speed
+        ant_rect.y += y_speed
         
-        if ant_rects.bottom >= HEIGHT or ant_rects.top <= 0:
-            y_speed *= -1
+        speed = 2
+        angle_in_radians = np.radians(self.circular[index])
+        x_speed = speed * np.cos(angle_in_radians)*self.restore_x
+        self.restore_x = 1
+        y_speed = speed * np.sin(angle_in_radians)*self.restore_y
+        self.restore_y = 1
+        ant_rect.x += x_speed
+        ant_rect.y += y_speed
+        if ant_rect.right >= WIDTH or ant_rect.left <=0:
+            self.restore_x *= -1             
+        
+        if ant_rect.bottom >= HEIGHT or ant_rect.top <= 0:
+            self.restore_y *= -1
 
+
+
+        
 
 
     def memory(self):
@@ -268,7 +267,7 @@ class Map:
                 self.screen.blit(self.ant.scaled_ant, ant)
 
 
-            
+            #print(self.ant_rects)
 
             pygame.display.update()
             self.clock.tick(60) # 60fps
