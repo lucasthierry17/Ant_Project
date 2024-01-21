@@ -77,9 +77,6 @@ class Ant(pg.sprite.Sprite):
         if self.drawSurf.get_rect().collidepoint(right_sens):
             right_result, right_isID, right_GA_result = self.sensCheck(right_sens)
 
-        # pg.draw.circle(self.drawSurf, (200,0,200), mid_sens, 1)
-        # pg.draw.circle(self.drawSurf, (200,0,200), left_sens, 1)
-        # pg.draw.circle(self.drawSurf, (200,0,200), right_sens, 1)
 
         if self.mode == 0 and self.pos.distance_to(self.nest) > 21:
             self.mode = 1
@@ -258,7 +255,6 @@ def main():
     screenSize = (cur_w, cur_h)
     nest = (cur_w / 3, cur_h / 2)
 
-    # background = pg.img.load("background.png").convert_alpha()
 
     workers = pg.sprite.Group()
     pheroLayer = PheroGrid(screenSize)
