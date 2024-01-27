@@ -1,158 +1,113 @@
-import time
-import matplotlib.pyplot as plt
+import pygame
+from pygame.locals import *
 import numpy as np
 
-
-class Ants:
-    """This class contains the functions movement, perception and approach_food."""
-
-    def __init__(self, num_ants):
-        self.positions = np.zeros((num_ants, 2)) # ants start at [0, 0]
-        self.directions = np.random.uniform(0, 360, size=num_ants) # degree between 0 and 360
-
-    def movement(self, perception_radius, approach_speed, edge_turn_region=1):
-        """this function is for the steps of the ants. First, the ants receive a random direction (self.directions). After the first step, they have a angle of view (right now -40 to 40 degrees). They walk randomly in this site of view. For each step they get a direction (-40 to 40 degrees) and take a step in that direction. If they enter the edge_region, they turn around and take the next step in the opposite direction
-        Input: perception_radius, approach_speed, edge_turn_region
-        """
-
-        cos_directions = np.cos(np.radians(self.directions))  # chooses the direction on the x axis
-        sin_directions = np.sin(np.radians(self.directions))  # same on the y axis
-
-        if Continues_Board == True: # the code creates a continues board, in which the ants have no border, they appear on the other side
-            x = (x + board_x) % (2*board_x) - board_x
-            y = (y + board_y) % (2*board_y) - board_y
-    
-        
-        else: 
-            for ant in range(len(self.positions)):
-                x, y = self.positions[ant]
-                next_x = x + cos_directions[ant]  # computes the next x coordinates
-                next_y = y + sin_directions[ant]  # computes the next y coordinates
-
-                # Check if the next position is within the board boundaries
-                if -board_x <= next_x <= board_x and -board_y <= next_y <= board_y:
-                    x = next_x
-                    y = next_y
-                else:
-                    # if the next step of the ant is outside of our board, the ant turns around 180 degrees
-                    if abs(next_x) > board_x - edge_turn_region or abs(next_y) > board_y - edge_turn_region:
-                        # Turn around 180 degrees
-                        self.directions[ant] += 180
-                    # else:
-                    # Turn slightly around
-                    #    self.directions[ant] += np.random.uniform(-20, 20)
-
-                self.positions[ant] = (x, y)
-
-                if show_results:
-                    self.directions[ant] += np.random.uniform(-40, 40)
-
-
-    def perception(self, food, perception_radius):
-        """this function contains the way, how the ants can find some food or the nest. It takes in the location of the food and the perception_radius. Every ant starts with none detected_targets. Every ant has a perception radius, in which they can "smell" food items. Every step and for each ant, the code checks, if there are any food_items in their radius."""
-        detected_targets = []
-        for ant_pos in self.positions:
-            distances = np.linalg.norm(food.positions - ant_pos, axis=1)
-            detected = any(distance <= perception_radius for distance in distances)
-            detected_targets.append(detected)
-
-        return detected_targets
-
-    def approach_food(self, food, detected_food, approach_speed):
-        """this function determines how to ants approch the food. The function takes in the location of the food, the detected_food from every ant and the approch_speed. The approch_speed determines how fast the ants move towards the food, if they have detected anything. This function is only in use, if an ant has detected a food_item. If an ant detects several food_items inside of their radius, then the distance is calculated and the ants move to the closest one. In the end, the position of the ant is updated towards the food_item"""
-        for ant, detected in enumerate(detected_food):
-            if detected:
-                nearest_food_index = np.argmin(np.linalg.norm(food.positions - self.positions[ant], axis=1))
-                direction_to_food = food.positions[nearest_food_index] - self.positions[ant]
-                norm_direction = np.linalg.norm(direction_to_food)
-                if norm_direction > 0:  # Avoid division by zero
-                    direction_to_food /= norm_direction
-
-                    self.positions[ant] += direction_to_food * approach_speed
-
-        return self.positions
-
-class Food:
-    "this class determines the location of the food_items and deploys them"
-
-    def __init__(self, num_food):
-        self.positions = np.random.uniform(-15, 15, size=(num_food, 2))
-
-    def deploy_food(self):
-        return self.positions
-
-
-
-class Board:
-    """the board class is for the visualisation of the board and for the simulation, which runs through every step and displays the current board."""
-
-    def __init__(self, num_ants, num_food):
-        self.ants = Ants(num_ants)
-        self.food = Food(num_food)
-
-
-    def visualize(self, detected_food, step):
-        if show_results:
-            plt.scatter(
-                self.ants.positions[:, 0], self.ants.positions[:, 1], marker="x", color="b"
-            )
-            plt.scatter(
-                self.food.positions[:, 0], self.food.positions[:, 1], marker="o", color="g"
-            )
-
-            for ant, detected in enumerate(detected_food):
-                if detected:
-                    plt.plot(self.ants.positions[ant, 0], self.ants.positions[ant, 1], "rx")
-
-            plt.title(f"Step {step + 1}/{num_steps}")
-            plt.xlabel("X Coordinate")
-            plt.ylabel("Y Coordinate")
-            plt.xlim(-board_x, board_x)
-            plt.ylim(-board_y, board_y)
-            plt.grid(True)
-            plt.pause(0.3)
-            plt.clf()
-
-    def simulate(self, num_steps, perception_radius, approach_speed):
-        if show_results:
-        
-            plt.ion()
-            fig, ax = plt.subplots()
-
-        for step in range(num_steps):
-            self.ants.movement(perception_radius, approach_speed)
-            detected_food = self.ants.perception(self.food, perception_radius)
-            self.ants.positions = self.ants.approach_food(self.food, detected_food, approach_speed)
-
-            self.visualize(detected_food, step)
-            if show_results:
-
-                plt.pause(0.3)
-                plt.clf()
-        if show_results:
-            plt.ioff()
-            plt.show()
-            plt.close()
-
-
-
-# Set the number of steps, ants, perception radius, and approach speed
-num_steps = 10
+logical_width, logical_height = 100, 75 # size for the arrays
+pixel_size = 10 # scales the screen up for visualisation
+pheromone_decay_rate = 0.94 # between 0.9 and 0.99
+max_pheromone_value = 255
+width, height = logical_width * pixel_size, logical_height * pixel_size 
 num_ants = 20
-num_food = 10
-perception_radius = 2
-approach_speed = 0.5
-board_x = 40
-board_y = 40
-starting_point = [0, 0]
-Continues_Board = False
-show_results = True  # Set this variable to True to visualize the results
+size_ant = 5 
+FPS = 70 
+pheri = 15 # this represents their sight of view
+repulsion_distance = 5 # how far the ants will go towards the center
+nest_position = np.array([width // 2, height // 2]) # set nest to the middle
+VSYNC = True 
 
-# start_time = time.time()
+def calculate_direction(start, target):
+    """this function calculates the direction from the start to the target. It takes in the position from start and target as x and y coordinates and returns the direction as x and y coordinates"""
 
-board = Board(num_ants, num_food)
-board.simulate(num_steps, perception_radius, approach_speed)
+    direction_vector = target - start
+    return direction_vector / np.linalg.norm(direction_vector)
 
-# end_time = time.time()
-# duration = end_time - start_time
-# print(duration)
+def move_ants(positions, directions):
+    """this function is represents the movement of the ants. Each ant has a pherisphere (pheri). It receives a degree in its pherisphere and walks a step in that direction. The direction is calculated by the sin and cos. """
+    cos_directions = np.cos(np.radians(directions))
+    sin_directions = np.sin(np.radians(directions))
+
+    for ant in range(len(positions)):
+        x, y = positions[ant]
+        next_x = x + cos_directions[ant]
+        next_y = y + sin_directions[ant]
+
+        if 0 <= next_x <= width and 0 <= next_y <= height: # if the next step is within board boundaries
+            x, y = next_x, next_y
+        else: # next step would be outside the board
+            direction_to_center = calculate_direction(np.array([x, y]), nest_position)
+            directions[ant] = np.degrees(np.arctan2(direction_to_center[1], direction_to_center[0]))
+            repulsion_vector = direction_to_center * repulsion_distance
+            x += repulsion_vector[0] # updates the x-coordinate of the ant
+            y += repulsion_vector[1] # same for the y coordinate
+
+        positions[ant] = (x, y)
+        directions[ant] += np.random.uniform(-pheri, pheri)
+
+    return positions
+
+def update_pheromones(pheromones):
+    """this function updates the pheromones. It takes in the array of the pheromones and returns an updated version. The values in the grid get smaller because of the decay rate"""
+    pheromones *= pheromone_decay_rate
+    return np.clip(pheromones, 0, max_pheromone_value) # ensures values stay within range 
+
+def draw_ants(screen, ant_positions, size):
+    # this function takes in the screen, the position and size of the ant and draws them in
+    for ant_pos in ant_positions:
+        pygame.draw.circle(screen, (255, 0, 0), ant_pos.astype(int), size) # draws the ants in red
+
+def draw_pheromones(screen, pheromones, color, scale):
+    # this function draws both of the pheromones grids
+    surface = pygame.surfarray.make_surface(pheromones) 
+    surface_array = pygame.surfarray.array3d(surface)
+    surface_array[pheromones > 0] = color
+    scaled_surface = pygame.transform.scale(surface, scale)
+    screen.blit(scaled_surface, (0, 0))
+
+def main(): 
+    pygame.init()
+    clock = pygame.time.Clock()
+    screen = pygame.display.set_mode((width, height), vsync=VSYNC) # creates the screen
+
+    pheromone_home = np.zeros((logical_width, logical_height), dtype=float) # sets up the pheromone grid for the home pheromones
+    pheromone_food = np.zeros((logical_width, logical_height), dtype=float) # same for the food pheromones
+
+    ant_positions = np.full((num_ants, 2), nest_position, dtype=float) # each ant starts at the position of the nest
+    ant_directions = np.random.uniform(0, 360, size=num_ants) # for the first step, each ant gets a random direction
+
+    go = True
+    while go:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                go = False
+
+        pheromone_home = update_pheromones(pheromone_home)
+        pheromone_food = update_pheromones(pheromone_food)
+
+        ant_positions = move_ants(ant_positions, ant_directions)
+
+        for ant_pos in ant_positions: # go through every ant and update their 
+            logical_x, logical_y = ant_pos.astype(int) // pixel_size # scales the position down to the array in order to update the values of the grids
+            logical_x = np.clip(logical_x, 0, logical_width - 1) # makes sure the values dont exceed the width of the board
+            logical_y = np.clip(logical_y, 0, logical_height - 1) # same for the height
+           
+            x, y = logical_x * pixel_size, logical_y * pixel_size # scales the position back up for visualisation on the actual screen
+            x, y = np.clip(x, 0, width - 1), np.clip(y, 0, height - 1) # makes sure the ants dont walk outside the board
+
+            pheromone_home[logical_x, logical_y] += 30 # updates the value in the part of the home_pheromone grid
+            pheromone_food[logical_x, logical_y] += 30 # same happens for the food grid
+
+        pheromone_home = np.clip(pheromone_home, 0, max_pheromone_value) # makes sure the values stay in range of the max_pheromone value
+        pheromone_food = np.clip(pheromone_food, 0, max_pheromone_value) # same here for the food
+
+        draw_pheromones(screen, pheromone_home, [244,0 ,0], (width, height)) # blue fr the home pheromones
+        draw_pheromones(screen, pheromone_food, [0, 255, 0], (width, height)) # green for the food pheromones
+
+        draw_ants(screen, ant_positions, size_ant) 
+
+        pygame.display.flip() # updates the entire display
+        clock.tick(FPS) # regulates the frames per second
+
+    pygame.quit()
+
+if __name__ == "__main__":
+    main()

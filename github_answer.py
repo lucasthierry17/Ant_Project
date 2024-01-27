@@ -10,7 +10,7 @@ NAnts - Ant pheromone trail simulation. Surfarray version. WIP
 Copyright (c) 2021  Nikolaus Stromberg  nikorasu85@gmail.com
 """
 FLLSCRN = False  # True for Fullscreen, or False for Window
-ANTS = 42  # Number of Ants to spawn
+ANTS = 500  # Number of Ants to spawn
 WIDTH = 1200  # default 1200
 HEIGHT = 800  # default 800
 FPS = 60  # 48-90
