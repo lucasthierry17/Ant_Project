@@ -99,7 +99,7 @@ def main():
         pheromone_home = np.clip(pheromone_home, 0, max_pheromone_value) # makes sure the values stay in range of the max_pheromone value
         pheromone_food = np.clip(pheromone_food, 0, max_pheromone_value) # same here for the food
 
-        draw_pheromones(screen, pheromone_home, [244,0 ,0], (width, height)) # blue fr the home pheromones
+        draw_pheromones(screen, pheromone_home, [255,0 ,0], (width, height)) # blue fr the home pheromones
         draw_pheromones(screen, pheromone_food, [0, 255, 0], (width, height)) # green for the food pheromones
 
         draw_ants(screen, ant_positions, size_ant) 
