@@ -1,39 +1,41 @@
-import pygame
-from pygame.locals import *
 import numpy as np
+import pygame
 
-# Define constants
-width, height = 800, 600
-array_size = (60, 45)
-pixel_size = 12
-
-# Create a NumPy array filled with random values between 0 and 1
-array = np.random.rand(*array_size)
-
-def map_value_to_color(value):
-    blue_component = int(value * 255)
-    return (0, 0, blue_component)
-
-
-
-# Initialize Pygame
+FPS = 200
+clock = pygame.time.Clock()
 pygame.init()
-screen = pygame.display.set_mode((width, height))
 
-# Create a Pygame surface from the NumPy array
-surface = pygame.surfarray.pixels_blue(colored_array)
-scaled_surface = pygame.transform.scale(surface, (width, height))
+width = 500
+height = 400
+initial_alpha = 255
+array = np.full((width, height), initial_alpha, dtype=np.uint8)
 
-# Draw the surface onto the screen
-screen.blit(scaled_surface, (0, 0))
+screen = pygame.display.set_mode([width, height])
+surface = pygame.Surface((width, height), pygame.SRCALPHA)
 
-# Main loop
+liste = []
+for i in range(100):
+    for j in range(100):
+        liste.append((i, j))
+
 running = True
+
+def drawing():
+    surface.fill((0, 0, 255, 0))  # Fill with transparent blue
+    for i, j in liste:
+        array[i, j] = max(array[i, j] - 1, 0)
+        pygame.draw.rect(surface, (0, 0, 255, array[i, j]), [i, j, 1, 1])
+
+    screen.fill((0, 0, 0))
+    screen.blit(surface, (0, 0))
+
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
 
+    drawing()
+    pygame.display.flip()
+    clock.tick(FPS)
 
-pygame.display.flip()
 pygame.quit()

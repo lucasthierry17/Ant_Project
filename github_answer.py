@@ -10,8 +10,8 @@ NAnts - Ant pheromone trail simulation. Surfarray version. WIP
 Copyright (c) 2021  Nikolaus Stromberg  nikorasu85@gmail.com
 """
 FLLSCRN = False  # True for Fullscreen, or False for Window
-ANTS = 500  # Number of Ants to spawn
-WIDTH = 1200  # default 1200
+ANTS = 50  # Number of Ants to spawn
+WIDTH = 1000  # default 1200
 HEIGHT = 800  # default 800
 FPS = 60  # 48-90
 VSYNC = True  # limit frame rate to refresh rate
@@ -214,7 +214,7 @@ class PheroGrid:
         self.img_array -= 0.2 * (60 / FPS) * ((dt / 10) * FPS)  # [self.img_array > 0] # dt might not need FPS parts
         self.img_array = self.img_array.clip(0, 255)
         pg.surfarray.blit_array(self.image, self.img_array)
-        return self.image
+        return self.image  
 
 
 class Food(pg.sprite.Sprite):

@@ -1,11 +1,10 @@
 import pygame
-from pygame.locals import *
 import numpy as np
+from pygame.locals import *
 
+# Dimensions of the array
 logical_width, logical_height = 100, 75 # size for the arrays
-pixel_size = 10 # scales the screen up for visualisation
-pheromone_decay_rate = 0.94 # between 0.9 and 0.99
-max_pheromone_value = 255
+pixel_size = 8 # scales the screen up for visualisation
 width, height = logical_width * pixel_size, logical_height * pixel_size 
 num_ants = 20
 size_ant = 5 
@@ -13,7 +12,9 @@ FPS = 70
 pheri = 15 # this represents their sight of view
 repulsion_distance = 5 # how far the ants will go towards the center
 nest_position = np.array([width // 2, height // 2]) # set nest to the middle
-VSYNC = True 
+home_pheromone = 200
+ant_coordinates = []
+
 
 def calculate_direction(start, target):
     """this function calculates the direction from the start to the target. It takes in the position from start and target as x and y coordinates and returns the direction as x and y coordinates"""
@@ -45,34 +46,33 @@ def move_ants(positions, directions):
 
     return positions
 
-def update_pheromones(pheromones):
-    """this function updates the pheromones. It takes in the array of the pheromones and returns an updated version. The values in the grid get smaller because of the decay rate"""
-    pheromones *= pheromone_decay_rate
-    return np.clip(pheromones, 0, max_pheromone_value) # ensures values stay within range  
+
+def draw_pheromones(surface, pheromones, ant_coordinates):
+    
+    surface.fill((0, 0, 255, 0))
+    for x, y in ant_coordinates:
+            pheromones[x, y] = max(pheromones[x, y] - 1,  0)
+            pygame.draw.rect(surface, (0, 0, 255, pheromones[x, y]), (x * pixel_size, y * pixel_size, pixel_size, pixel_size))  
+
+
 
 def draw_ants(screen, ant_positions, size):
     # this function takes in the screen, the position and size of the ant and draws them in
     for ant_pos in ant_positions:
         pygame.draw.circle(screen, (255, 0, 0), ant_pos.astype(int), size) # draws the ants in red
 
-def draw_pheromones(screen, pheromones, color, scale):
-    # this function draws both of the pheromones grids
-    surface = pygame.surfarray.make_surface(pheromones) 
-    surface_array = pygame.surfarray.array3d(surface)
-    surface_array[pheromones > 0] = color
-    scaled_surface = pygame.transform.scale(surface, scale)
-    screen.blit(scaled_surface, (0, 0))
-
 def main(): 
     pygame.init()
     clock = pygame.time.Clock()
-    screen = pygame.display.set_mode((width, height), vsync=VSYNC) # creates the screen
-
-    pheromone_home = np.zeros((logical_width, logical_height), dtype=float) # sets up the pheromone grid for the home pheromones
-    pheromone_food = np.zeros((logical_width, logical_height), dtype=float) # same for the food pheromones
+    screen = pygame.display.set_mode((width, height))
+    surface = pygame.Surface((width, height), pygame.SRCALPHA)
+ # creates the screen
 
     ant_positions = np.full((num_ants, 2), nest_position, dtype=float) # each ant starts at the position of the nest
     ant_directions = np.random.uniform(0, 360, size=num_ants) # for the first step, each ant gets a random direction
+
+    pheromones = np.full((logical_width, logical_height), 255, dtype=np.uint8)  # initial pheromone array
+
 
     go = True
     while go:
@@ -80,29 +80,27 @@ def main():
             if event.type == pygame.QUIT:
                 go = False
 
-        pheromone_home = update_pheromones(pheromone_home)
-        pheromone_food = update_pheromones(pheromone_food)
-
+       
         ant_positions = move_ants(ant_positions, ant_directions)
 
         for ant_pos in ant_positions: # go through every ant and update their 
             logical_x, logical_y = ant_pos.astype(int) // pixel_size # scales the position down to the array in order to update the values of the grids
             logical_x = np.clip(logical_x, 0, logical_width - 1) # makes sure the values dont exceed the width of the board
             logical_y = np.clip(logical_y, 0, logical_height - 1) # same for the height
+
+            pheromones[logical_x, logical_y] += home_pheromone
+            ant_coordinates.append((logical_x, logical_y))
+
            
             x, y = logical_x * pixel_size, logical_y * pixel_size # scales the position back up for visualisation on the actual screen
             x, y = np.clip(x, 0, width - 1), np.clip(y, 0, height - 1) # makes sure the ants dont walk outside the board
+            
 
-            pheromone_home[logical_x, logical_y] += 30 # updates the value in the part of the home_pheromone grid
-            pheromone_food[logical_x, logical_y] += 30 # same happens for the food grid
-
-        pheromone_home = np.clip(pheromone_home, 0, max_pheromone_value) # makes sure the values stay in range of the max_pheromone value
-        pheromone_food = np.clip(pheromone_food, 0, max_pheromone_value) # same here for the food
-
-        draw_pheromones(screen, pheromone_home, [244,0 ,0], (width, height)) # blue fr the home pheromones
-        draw_pheromones(screen, pheromone_food, [0, 255, 0], (width, height)) # green for the food pheromones
-
+        draw_pheromones(surface, pheromones, ant_coordinates)
+        screen.fill((0, 0, 0))
+        screen.blit(surface, (0, 0))  # Clear the screen to draw the new positions
         draw_ants(screen, ant_positions, size_ant) 
+
 
         pygame.display.flip() # updates the entire display
         clock.tick(FPS) # regulates the frames per second
