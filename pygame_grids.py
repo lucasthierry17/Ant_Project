@@ -53,7 +53,7 @@ class Ants:
 
 
 class Food:
-    def __init__(self, num_food, radius, min_distance = 200):
+    def __init__(self, num_food, radius, min_distance = 400):
         self.num_food = num_food
         self.radius = radius
         self.min_distance = min_distance
