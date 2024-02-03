@@ -14,7 +14,7 @@ repulsion_distance = 5  # how far the ants will go towards the center
 nest_position = np.array([width // 2, height // 2])  # set nest to the middle
 home_pheromone = 255 # value of intensity added to the position
 step_size = 4 # step_size of the ants
-decay_rate = 1 # value is subtracted from the intensity in position x, y
+decay_rate = 0.5 # value is subtracted from the intensity in position x, y
 
 class Ants:
     def calculate_direction(self, start, target):
@@ -81,19 +81,25 @@ class Drawing:
     def draw_pheromones(self, surface, pheromones):
         for (x, y), intensity in np.ndenumerate(pheromones):
             pheromones[x, y] = max(intensity - decay_rate, 0)
-            pygame.draw.rect(surface, (0, 255, 255, pheromones[x, y]), (x * pixel_size, y * pixel_size, pixel_size, pixel_size)) # here you can set the color of the pheromones
+            pygame.draw.rect(surface, (0, 0, 255, pheromones[x, y]), (x * pixel_size, y * pixel_size, pixel_size, pixel_size))
 
     def draw_ants(self, screen, ant_positions, size):
         self.screen.fill((0, 0, 0))
         # this function takes in the screen, the position and size of the ant and draws them in
         self.draw_pheromones(self.surface, main.pheromones)
         self.screen.blit(self.surface, (0, 0))  # Clear the screen to draw the new positions
+        self.draw_nest()
 
         for ant_pos in ant_positions:
             pygame.draw.circle(screen, (255, 0, 0), ant_pos.astype(int), size)  # draws the ants in red
 
         pygame.display.flip()  # updates the entire display
         self.clock.tick(FPS)  # regulates the frames per second
+
+    def draw_nest(self):
+        pygame.draw.circle(self.screen, (121, 61, 0), (width // 2, height // 2), 30)
+
+
 
 
 class Run:
