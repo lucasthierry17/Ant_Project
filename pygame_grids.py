@@ -2,7 +2,7 @@ import pygame
 import numpy as np
 from pygame.locals import *
 
-# Dimensions of the array
+
 logical_width, logical_height = 150, 100  # size for the arrays
 pixel_size = 6  # scales the screen up for visualization
 width, height = logical_width * pixel_size, logical_height * pixel_size
@@ -18,8 +18,6 @@ decay_rate = 3 # value is subtracted from the intensity in position x, y
 num_food = 200 # number of food items in the food source
 radius = 7 # radius of the food source
 size_food = 5 # size of each food item
-
-
 
 class Ants:
     def calculate_direction(self, start, target):
@@ -139,10 +137,11 @@ class Run:
 
             for ant_pos in ant_positions:
                 logical_x, logical_y = ant_pos.astype(int) // pixel_size
-                
+
 
                 self.pheromones[logical_x, logical_y] += home_pheromone
             vis.draw_ants(ant_positions, size_ant)
+
 
 
 
@@ -153,3 +152,5 @@ main = Run()
 
 if __name__ == "__main__":
     main.main()  # starts the code if this file is executed
+
+

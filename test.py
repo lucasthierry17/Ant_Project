@@ -2,19 +2,19 @@ import pygame
 import numpy as np
 from pygame.locals import *
 
-# Dimensions of the array
+
 logical_width, logical_height = 150, 100  # size for the arrays
 pixel_size = 6  # scales the screen up for visualization
 width, height = logical_width * pixel_size, logical_height * pixel_size
-num_ants = 10
-size_ant = 5
-FPS = 250
+num_ants = 10 # number of ants
+size_ant = 5 # size of the ant for drawing
+FPS = 250 # frames per second
 pheri = 15  # this represents their sight of view
 repulsion_distance = 5  # how far the ants will go towards the center
 nest_position = np.array([width // 2, height // 2])  # set nest to the middle
-home_pheromone = 120
-ant_coordinates = []
-step_size = 3
+home_pheromone = 255 # value of intensity added to the position
+step_size = 4 # step_size of the ants
+decay_rate = 1 # value is subtracted from the intensity in position x, y
 
 class Ants:
     def calculate_direction(self, start, target):
@@ -79,10 +79,9 @@ class Drawing:
         self.surface = pygame.Surface((width, height), pygame.SRCALPHA)
 
     def draw_pheromones(self, surface, pheromones):
-        surface.fill((0, 0, 255, 0))
         for (x, y), intensity in np.ndenumerate(pheromones):
-            pheromones[x, y] = max(intensity - 2, 0)
-            pygame.draw.rect(surface, (0, 0, 255, pheromones[x, y]), (x * pixel_size, y * pixel_size, pixel_size, pixel_size))
+            pheromones[x, y] = max(intensity - decay_rate, 0)
+            pygame.draw.rect(surface, (0, 255, 255, pheromones[x, y]), (x * pixel_size, y * pixel_size, pixel_size, pixel_size)) # here you can set the color of the pheromones
 
     def draw_ants(self, screen, ant_positions, size):
         self.screen.fill((0, 0, 0))
@@ -114,11 +113,8 @@ class Run:
 
             for ant_pos in ant_positions:
                 logical_x, logical_y = ant_pos.astype(int) // pixel_size
-                logical_x = np.clip(logical_x, 0, logical_width - 1)
-                logical_y = np.clip(logical_y, 0, logical_height - 1)
-
+                
                 self.pheromones[logical_x, logical_y] += home_pheromone
-                ant_coordinates.append((logical_x, logical_y))
 
             vis.draw_ants(vis.screen, ant_positions, size_ant)
 
@@ -129,3 +125,5 @@ main = Run()
 
 if __name__ == "__main__":
     main.main()  # starts the code if this file is executed
+
+
