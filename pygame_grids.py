@@ -5,16 +5,20 @@ from pygame.locals import *
 logical_width, logical_height = 150, 100  # size for the arrays
 pixel_size = 6  # scales the screen up for visualization
 width, height = logical_width * pixel_size, logical_height * pixel_size
+
 num_ants = 10  # number of ants
 size_ant = 5  # size of the ant for drawing
-FPS = 350  # frames per second
+FPS = 350  # frame per second
+
 pheri = 15  # this represents their sight of view
 repulsion_distance = 5  # how far the ants will go towards the center
 nest_position = np.array([width // 2, height // 2])  # set nest to the middle
 home_pheromone = 255  # value of intensity added to the position
 food_pheromone = 255  # value of intensity added to the position
+
 step_size = 7  # step_size of the ants
 decay_rate = 2  # value is subtracted from the intensity in position x, y
+
 num_food = 200  # number of food items in the food source
 radius = 7  # radius of the food source
 size_food = 5  # size of each food item
@@ -71,7 +75,10 @@ class Food:
 
         # randomly choose x and y coordinates for the center of the food source
         x_center = np.random.randint(50, width // 3)
+
         y_center = np.random.randint(50, height - 50)
+
+      
         self.center = x_center, y_center
 
         # return the final and scaled positions of the food items
@@ -110,18 +117,26 @@ class Drawing:
         self.draw_pheromones(self.surface, main.home_pheromones, main.food_pheromones)
         self.screen.blit(self.surface, (0, 0))  # Clear the screen to draw the new positions
         self.draw_food(size_food)
-        
+
 
         for ant_pos in ant_positions:
             
             pygame.draw.circle(self.screen, (255, 0, 0), ant_pos.astype(int), size)  # draws the ants without food in red
+
         self.draw_nest()
+
+       
 
         pygame.display.flip()  # updates the entire display
         self.clock.tick(FPS)  # regulates the frames per second
 
+
     def draw_nest(self):
         pygame.draw.circle(self.screen, (121, 61, 0), (width // 2, height // 2), 30)
+
+
+
+
 
 class Run:
     def __init__(self):
@@ -143,6 +158,7 @@ class Run:
             for ant_pos, has_food in zip(self.ant_positions, self.ants.has_food):
                 logical_x, logical_y = ant_pos.astype(int) // pixel_size
 
+
                 if not has_food:
                      # Check if an ant is inside a food position
                     for food_pos in vis.food_positions:
@@ -155,6 +171,7 @@ class Run:
                     distance_to_home = np.linalg.norm(ant_pos - nest_position)
                     if distance_to_home < 30:
                         self.ants.has_food[np.where((self.ant_positions == ant_pos).all(axis=1))] = False
+
 
             vis.draw_ants(self.ant_positions, size_ant)
 
