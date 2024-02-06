@@ -5,9 +5,9 @@ from pygame.locals import *
 logical_width, logical_height = 150, 100  # size for the arrays
 pixel_size = 6  # scales the screen up for visualization
 width, height = logical_width * pixel_size, logical_height * pixel_size
-num_ants = 10  # number of ants
+num_ants = 20 # number of ants
 size_ant = 5  # size of the ant for drawing
-FPS = 350  # frames per second
+FPS = 400  # frames per second
 pheri = 15  # this represents their sight of view
 repulsion_distance = 5  # how far the ants will go towards the center
 nest_position = np.array([width // 2, height // 2])  # set nest to the middle
@@ -17,42 +17,53 @@ step_size = 7  # step_size of the ants
 decay_rate = 2  # value is subtracted from the intensity in position x, y
 num_food = 200  # number of food items in the food source
 radius = 7  # radius of the food source
-size_food = 5  # size of each food item
+size_food = 5  # size of each food item 
 
 class Ants:
     def __init__(self) -> None:
         self.has_food = np.zeros((num_ants), dtype=bool)
 
     def calculate_direction(self, start, target):
-        """Calculates the direction from the start to the target. It takes in the position of the target and the position of the nest."""
+        """Calculates the direction from the start to the target.
+        It takes in the position of the target and the position of the nest."""
         direction_vector = target - start
         return direction_vector / np.linalg.norm(direction_vector)
+    
 
-    def move_ants(self, positions, directions):
-        """Represents the movement of the ants. Each ant receives a random direction for the beginning. After their first step, they have a side of view which is limited to the pheri variable. They get a random direction and take a step in that direction. If their next step is outside the screen, they take a step towards the center."""
+    def move_ants(self, positions, directions, food_pheromones):
         cos_directions = step_size * np.cos(np.radians(directions))
         sin_directions = step_size * np.sin(np.radians(directions))
 
         for ant in range(len(positions)):
             x, y = positions[ant]
-            next_x = x + cos_directions[ant]
-            next_y = y + sin_directions[ant]
+            logical_x = np.clip(x // pixel_size, 0, logical_width - 1)
+            logical_y = np.clip(y // pixel_size, 0, logical_height - 1)
 
-            if 0 <= next_x <= width and 0 <= next_y <= height:
-                x, y = next_x, next_y
+            if self.has_food[ant]:
+                # Ant has food, move towards the nest (highest home pheromone value)
+                direction_to_nest = self.calculate_direction(np.array([x, y]), nest_position)
+                directions[ant] = np.degrees(np.arctan2(direction_to_nest[1], direction_to_nest[0]))
+                x += cos_directions[ant]  # Move in the direction of the nest
+                y += sin_directions[ant]
             else:
-                direction_to_center = self.calculate_direction(np.array([x, y]), nest_position)
-                directions[ant] = np.degrees(np.arctan2(direction_to_center[1], direction_to_center[0]))
-                repulsion_vector = direction_to_center * repulsion_distance
-                x += repulsion_vector[0]
-                y += repulsion_vector[1]
+                # Ant doesn't have food, search for the direction with the highest food pheromone value in the surrounding
+                x_start, x_end = max(0, logical_x - pheri), min(logical_x + pheri + 1, logical_width)
+                y_start, y_end = max(0, logical_y - pheri), min(logical_y + pheri + 1, logical_height)
+                neighborhood = food_pheromones[x_start:x_end, y_start:y_end]
+                max_index = np.unravel_index(np.argmax(neighborhood), neighborhood.shape)
+                max_direction = self.calculate_direction(np.array([logical_x, logical_y]), np.array(max_index))
+                directions[ant] = np.degrees(np.arctan2(max_direction[1], max_direction[0]))
+
+                # Move in the calculated direction
+                next_x = x + cos_directions[ant]
+                next_y = y + sin_directions[ant]
+                if 0 <= next_x <= width and 0 <= next_y <= height:
+                    x, y = next_x, next_y
 
             positions[ant] = (x, y)
             directions[ant] += np.random.uniform(-pheri, pheri)
 
         return positions
-
-
 class Food:
     """In this class, the food_sources are being created. They are shown as x of smaller green circles inside of a bigger circle. They are being placed randomly inside a certain area (away from the nest)"""
     def __init__(self, num_food, radius, min_distance=400):
@@ -123,13 +134,14 @@ class Drawing:
     def draw_nest(self):
         pygame.draw.circle(self.screen, (121, 61, 0), (width // 2, height // 2), 30)
 
+
 class Run:
     def __init__(self):
         self.ants = Ants()
         self.ant_positions = np.full((num_ants, 2), nest_position, dtype=float)
         self.ant_directions = np.random.uniform(0, 360, size=num_ants)
-        self.home_pheromones = np.full((logical_width, logical_height), 0, dtype=np.uint8)  # Initialize home pheromones to zero
-        self.food_pheromones = np.full((logical_width, logical_height), 0, dtype=np.uint8)  # Initialize food pheromones to zero
+        self.home_pheromones = np.full((logical_width, logical_height), 0, dtype=np.uint8)
+        self.food_pheromones = np.full((logical_width, logical_height), 0, dtype=np.uint8)
         self.go = True
 
     def main(self):
@@ -138,13 +150,15 @@ class Run:
                 if event.type == pygame.QUIT:
                     self.go = False
 
-            self.ant_positions = self.ants.move_ants(self.ant_positions, self.ant_directions)
+            self.ant_positions = self.ants.move_ants(self.ant_positions, self.ant_directions, self.food_pheromones)
 
             for ant_pos, has_food in zip(self.ant_positions, self.ants.has_food):
-                logical_x, logical_y = ant_pos.astype(int) // pixel_size
+                logical_x = np.clip(ant_pos[0].astype(int) // pixel_size, 0, logical_width - 1)
+                logical_y = np.clip(ant_pos[1].astype(int) // pixel_size, 0, logical_height - 1)
+                #logical_x, logical_y = ant_pos.astype(int) // pixel_size
 
                 if not has_food:
-                     # Check if an ant is inside a food position
+                    # Check if an ant is inside a food position
                     for food_pos in vis.food_positions:
                         distance_to_food = np.linalg.norm(ant_pos - food_pos)
                         if distance_to_food < size_food:
@@ -157,6 +171,7 @@ class Run:
                         self.ants.has_food[np.where((self.ant_positions == ant_pos).all(axis=1))] = False
 
             vis.draw_ants(self.ant_positions, size_ant)
+
 
 vis = Drawing()
 main = Run()
