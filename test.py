@@ -5,7 +5,8 @@ from pygame.locals import *
 logical_width, logical_height = 150, 100  # size for the arrays
 pixel_size = 6  # scales the screen up for visualization
 width, height = logical_width * pixel_size, logical_height * pixel_size
-num_ants = 20 # number of ants
+
+num_ants = 10  # number of ants
 size_ant = 5  # size of the ant for drawing
 FPS = 400  # frames per second
 pheri = 15  # this represents their sight of view
@@ -18,6 +19,7 @@ decay_rate = 2  # value is subtracted from the intensity in position x, y
 num_food = 200  # number of food items in the food source
 radius = 7  # radius of the food source
 size_food = 5  # size of each food item 
+
 
 class Ants:
     def __init__(self) -> None:
@@ -64,9 +66,14 @@ class Ants:
             directions[ant] += np.random.uniform(-pheri, pheri)
 
         return positions
+
+
+
 class Food:
     """In this class, the food_sources are being created. They are shown as x of smaller green circles inside of a bigger circle. They are being placed randomly inside a certain area (away from the nest)"""
     def __init__(self, num_food, radius, min_distance=400):
+
+
         self.num_food = num_food
         self.radius = radius
         self.min_distance = min_distance
@@ -81,11 +88,13 @@ class Food:
         y = radii * np.sin(angles)
 
         # randomly choose x and y coordinates for the center of the food source
+
         x_center = np.random.randint(50, width // 3)
         y_center = np.random.randint(50, height - 50)
         self.center = x_center, y_center
 
         # return the final and scaled positions of the food items
+
         self.positions = np.column_stack((x, y)) * pixel_size + self.center
         return self.positions
 
@@ -97,6 +106,7 @@ class Drawing:
         self.screen = pygame.display.set_mode((width, height))
         self.surface = pygame.Surface((width, height))
         self.food_positions = Food(num_food, radius).generate_positions()
+
 
     def draw_pheromones(self, surface, home_pheromones, food_pheromones):
         """This function draws the pheromones. It draws small rectangles on the screen, the values for the color are being stored inside two numpy arrays (food_pheromones and home_pheromones). The pheromones disappear through the substraction of the decay rate each step"""
@@ -128,6 +138,7 @@ class Drawing:
             pygame.draw.circle(self.screen, (255, 0, 0), ant_pos.astype(int), size)  # draws the ants without food in red
         self.draw_nest()
 
+
         pygame.display.flip()  # updates the entire display
         self.clock.tick(FPS)  # regulates the frames per second
 
@@ -140,10 +151,14 @@ class Run:
         self.ants = Ants()
         self.ant_positions = np.full((num_ants, 2), nest_position, dtype=float)
         self.ant_directions = np.random.uniform(0, 360, size=num_ants)
-        self.home_pheromones = np.full((logical_width, logical_height), 0, dtype=np.uint8)
-        self.food_pheromones = np.full((logical_width, logical_height), 0, dtype=np.uint8)
+
+        self.home_pheromones = np.full((logical_width, logical_height), 0, dtype=np.uint8)  # Initialize home pheromones to zero
+        self.food_pheromones = np.full((logical_width, logical_height), 0, dtype=np.uint8)  # Initialize food pheromones to zero
+
         self.go = True
 
+
+ 
     def main(self):
         while self.go:
             for event in pygame.event.get():
