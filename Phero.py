@@ -1,26 +1,30 @@
 import pygame
 import numpy as np
 from pygame.locals import *
+from math import pi, sin, cos, atan2, radians, degrees
+from random import randint
 
-logical_width, logical_height = 150, 100  # size for the pheromone array
-pixel_size = 6  # scales the screen up for visualization
+logical_width, logical_height = 150, 100# size for the pheromone array
+pixel_size = 6                          # scales the screen up for visualization
 width, height = logical_width * pixel_size, logical_height * pixel_size # actual size of the screen
-num_ants = 50  # number of ants
-size_ant = 5  # size of the ant for drawing
-FPS = 350  # frames per second
-pheri = 15  # this represents their sight of view
+num_ants = 50                           # number of ants
+size_ant = 5                            # size of the ant for drawing
+FPS = 10                                # frames per second
+pheri = 15                              # this represents their sight of view
 nest_position = np.array([width // 2, height // 2])  # set nest to the middle
-home_pheromone = 255  # value of intensity added to the position
-food_pheromone = 255  # value of intensity added to the position
-step_size = 6  # step_size of the ants
-decay_rate = 5  # value is subtracted from the intensity in position x, y
-num_food = 200  # number of food items in the food source
-radius = 7  # radius of the food source
-size_food = 5  # size of each food item
+home_pheromone = 255                    # value of intensity added to the position
+food_pheromone = 255                    # value of intensity added to the position
+step_size = 6                           # step_size of the ants
+decay_rate = 5                          # value is subtracted from the intensity in position x, y
+num_food = 200                          # number of food items in the food source
+radius = 7                              # radius of the food source
+size_food = 5                           # size of each food item
+VSYNC = True
+SHOWFPS = True
 
 class Ants:
     """This class is for the ants. It contains the movement of the ants."""
-    def __init__(self) -> None:
+    def __init__(self):
         self.has_food = np.zeros((num_ants), dtype=bool)
 
     def calculate_direction(self, start, target):
@@ -108,6 +112,8 @@ class Drawing:
         self.screen = pygame.display.set_mode((width, height))
         self.surface = pygame.Surface((width, height))
         self.food_positions = Food(num_food, radius).generate_positions()
+        self.font = pygame.font.Font(None, 30)
+
 
     def draw_pheromones(self, surface, home_pheromones, food_pheromones):
         """This function draws the pheromones. 
@@ -164,6 +170,7 @@ class Drawing:
         self.draw_food(size_food)
         self.draw_ants(main.ant_positions, size_ant)
         self.draw_nest()
+        if SHOWFPS : self.screen.blit(self.font.render(str(int(self.clock.get_fps())), True, [0,200,0]), (8, 8))
         pygame.display.flip()
         self.clock.tick(FPS)
 
@@ -178,6 +185,7 @@ class Run:
         self.ant_positions = np.full((num_ants, 2), nest_position, dtype=float)
         self.ant_directions = np.random.uniform(0, 360, size=num_ants)
         self.home_pheromones = np.full((logical_width, logical_height), 0, dtype=np.uint8)
+        self.home_pheromones = pg.
         self.food_pheromones = np.full((logical_width, logical_height), 0, dtype=np.uint8)
         self.go = True
 
