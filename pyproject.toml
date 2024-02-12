@@ -23,7 +23,8 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
 ]
-dependencies = []
+
+dependencies = ["numpy", "matplotlib"]
 description = "the package for our project"
 license = {file = "LICENSE"}
 name = "Ant_Project"
@@ -31,7 +32,7 @@ readme = {file = "README.md", content-type = "text/markdown"}
 requires-python = ">=3.8"
 version = "0.1.0"
 
-[project.optional-dependencies]
+[project.optional-dependencies] 
 dev = [
     "black",
     "flake8",
