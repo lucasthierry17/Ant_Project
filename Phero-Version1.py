@@ -9,7 +9,7 @@ FLLSCRN = False         # True for Fullscreen, or False for Window
 ANTS = 50               # Number of Ants to spawn
 WIDTH = 1200            # default 1200
 HEIGHT = 800            # default 800
-FPS = 60                # frames per second (48-90)
+FPS = 60               # frames per second (48-90)
 VSYNC = True            # limit frame rate to refresh rate
 PRATIO = 5              # Pixel Size for Pheromone grid, 5 is best
 SHOWFPS = True          # show framerate debug
@@ -30,11 +30,13 @@ class Ant(pg.sprite.Sprite):
         self.orig_img = pg.transform.rotate(self.image.copy(), -90)
         self.rect = self.image.get_rect(center=nest)
         self.ang = randint(0, 360) # angle for starting
-        self.desireDir = pg.Vector2(cos(radians(self.ang)), sin(radians(self.ang)))
+        self.next_step = pg.Vector2(cos(radians(self.ang)), sin(radians(self.ang)))
         self.pos = pg.Vector2(self.rect.center)
         self.vel = pg.Vector2(0, 0)
         self.last_sdp = (nest[0] / 10 / 2, nest[1] / 10 / 2)
         self.mode = 1
+        self.desireDir = pg.Vector2(cos(radians(self.ang)), sin(radians(self.ang)))
+
 
     def update(self, dt):  # behavior
         mid_result = left_result = right_result = [0,0,0]
@@ -44,7 +46,7 @@ class Ant(pg.sprite.Sprite):
         foodColor = (0,255,0)  # color of food to look for
         rand_dir = .12  # how random they walk around
         maxSpeed = 12  # 10-12 seems ok
-        steerStr = 3  # 3 or 4, dono
+        steerStr = 4  # 3 or 4, dono
         # Converts ant's current screen coordinates, to smaller resolution of pherogrid.
         scaledown_pos = (int(self.pos.x/PRATIO), int(self.pos.y/PRATIO))
         # Get locations to check as sensor points, in pairs for better detection.
@@ -95,31 +97,10 @@ class Ant(pg.sprite.Sprite):
                 steerStr = 5
                 self.mode = 2
 
+
         elif self.mode == 2:  # Once found food, either follow own trail back to nest, or head in nest's general direction.
-            home_phero = (0,50,0) # color for food_pheromones
-            if scaledown_pos != self.last_sdp and scaledown_pos[0] in range(0,self.pgSize[0]) and scaledown_pos[1] in range(0,self.pgSize[1]):
-                self.phero.img_array[scaledown_pos] += home_phero
-                self.last_sdp = scaledown_pos
-            if self.pos.distance_to(nest) < 24:
-                #self.desireDir = pg.Vector2(self.lastFood - self.pos).normalize()
-                self.desireDir = pg.Vector2(-1,0).rotate(self.ang).normalize()
-                self.isMyTrail[:] = False #np.full(self.pgSize, False)
-                maxSpeed = 5
-                rand_dir = .01
-                steerStr = 5
-                self.mode = 1
-            elif mid_result[2] > max(left_result[2], right_result[2]) and mid_isID: #and mid_result[:2] == (0,0):
-                self.desireDir += pg.Vector2(1,0).rotate(self.ang).normalize()
-                rand_dir = .1
-            elif left_result[2] > right_result[2] and left_isID: #and left_result[:2] == (0,0):
-                self.desireDir += pg.Vector2(1,-2).rotate(self.ang).normalize() #left (0,-1)
-                rand_dir = .1
-            elif right_result[2] > left_result[2] and right_isID: #and right_result[:2] == (0,0):
-                self.desireDir += pg.Vector2(1,2).rotate(self.ang).normalize() #right (0, 1)
-                rand_dir = .1
-            else:  # maybe first add ELSE FOLLOW OTHER TRAILS?
-                self.desireDir += pg.Vector2(nest - self.pos).normalize() * .08
-                rand_dir = .1   #pg.Vector2(self.desireDir + (1,0)).rotate(pg.math.Vector2.as_polar(self.nest - self.pos)[1]) 
+            food_phero = (0,50,0) # color for food_pheromones
+            pass
 
         # Avoid edges
         if not self.drawSurf.get_rect().collidepoint(left_sens) and self.drawSurf.get_rect().collidepoint(right_sens):
@@ -157,7 +138,6 @@ class Ant(pg.sprite.Sprite):
         ga_r = self.drawSurf.get_at(pos)[:3]
         return array_r, self.isMyTrail[sdpos], ga_r
 
-
 class PheroGrid():
     def __init__(self, bigSize):
         self.surfSize = (int(bigSize[0]/PRATIO), int(bigSize[1]/PRATIO))
@@ -169,18 +149,6 @@ class PheroGrid():
         self.img_array = self.img_array.clip(0,255)
         pg.surfarray.blit_array(self.image, self.img_array)
         return self.image
-
-
-class Food(pg.sprite.Sprite):
-    def __init__(self, pos):
-        super().__init__()
-        self.pos = pos
-        self.image = pg.Surface((16, 16))
-        self.image.fill(0)
-        self.image.set_colorkey(0)
-        pg.draw.circle(self.image, [0, 255,0], [8, 8], 4)
-        self.rect = self.image.get_rect(center=pos)
-
 
 class Vec2():
 	def __init__(self, x=0, y=0):
@@ -200,8 +168,6 @@ def main():
 
     for n in range(ANTS):
         workers.add(Ant(screen, nest, pheroLayer))
-    foodList = []
-    foods = pg.sprite.Group()
     font = pg.font.Font(None, 30)
     clock = pg.time.Clock()
     # main loop
@@ -209,19 +175,6 @@ def main():
         for e in pg.event.get():
             if e.type == pg.QUIT or e.type == pg.KEYDOWN and e.key == pg.K_ESCAPE:
                 return
-            
-            elif e.type == pg.MOUSEBUTTONDOWN:
-                mousepos = pg.mouse.get_pos()
-                if e.button == 1: # and pg.Vector2(mousepos).distance_to(nest) > 242:
-                    foodBits = 200
-                    fRadius = 50
-                    for i in range(0, foodBits): # spawn food bits evenly within a circle
-                        dist = pow(i / (foodBits - 1.0), 0.5) * fRadius
-                        angle = 2 * pi * 0.618033 * i
-                        fx = mousepos[0] + dist * cos(angle)
-                        fy = mousepos[1] + dist * sin(angle)
-                        foods.add(Food((fx,fy)))
-                    foodList.extend(foods.sprites())
       
         dt = clock.tick(FPS) / 100
         pheroImg = pheroLayer.update(dt)
@@ -230,7 +183,6 @@ def main():
         rescaled_img = pg.transform.scale(pheroImg, (WIDTH, HEIGHT))
         pg.Surface.blit(screen, rescaled_img, (0,0))
         #workers.update(dt)  # enable here to see debug dots
-        foods.draw(screen)
         pg.draw.circle(screen, [70,40,40], nest, 16, 5)
         workers.draw(screen)
 
@@ -241,3 +193,8 @@ def main():
 if __name__ == '__main__':
     main()  # by Nik
     pg.quit() 
+
+    
+        
+
+    
