@@ -2,7 +2,7 @@
 """
 
 import numpy as np
-from Version1 import Ants, Food
+from outdated.Version1 import Ants, Food
 
 
 def test_movement():
