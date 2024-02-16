@@ -4,7 +4,7 @@ import math
 import random
 
 WIDTH, HEIGHT = 1200, 800
-num_ants = 200
+num_ants = 100
 PRATIO = 5 # ratio between screen and phero_grid
 nest = (WIDTH // 3.5, HEIGHT // 2)
 VSYNC = True
@@ -12,6 +12,7 @@ SHOWFPS = True
 food_sources = []
 
 class Ants(pygame.sprite.Sprite):
+
     def __init__(self, nest, pheromones):
         super().__init__()
         self.x, self.y = nest # starting coordinates
@@ -24,6 +25,7 @@ class Ants(pygame.sprite.Sprite):
         self.angle_range = (-10, 10)  # Range for random angle change
         self.desireDir = pygame.Vector2(np.cos(np.radians(self.start_ang)), np.sin(np.radians(self.start_ang))) # direction 
         self.has_food = False
+
 
     def update(self):
         scaled_pos = (int(self.x / PRATIO), int(self.y / PRATIO))
@@ -45,9 +47,7 @@ class Ants(pygame.sprite.Sprite):
             else:
                 self.desireDir = pygame.Vector2(nest[0] - self.x, nest[1] - self.y).normalize() # go towards the nest
 
-            self.phero.img_array[scaled_pos] += (0, 100, 0) # update pheromones
-
-
+            self.phero.img_array[scaled_pos] += (0, 200, 0) # update pheromones
 
         else: # ant has no food
             if food_sources:
@@ -59,7 +59,6 @@ class Ants(pygame.sprite.Sprite):
                     elif distance < 30 or self.phero.img_array[scaled_pos][1] > 75: # smells and goes to the food
                         self.desireDir = pygame.Vector2(food[0] - scaled_pos[0], food[1] - scaled_pos[1])
                     
-
             # Move randomly if no food source is found
             angle_change = random.uniform(*self.angle_range)
             self.desireDir = self.desireDir.rotate(angle_change).normalize()
@@ -94,6 +93,7 @@ class Pheromones:
         self.img_array = self.img_array.clip(0, 255) # clip to color range
         pygame.surfarray.blit_array(self.image, self.img_array) 
         return self.image
+
 
 def main():
     pygame.init()

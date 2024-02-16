@@ -51,7 +51,7 @@ class Ants:
                 direction_to_nest = self.calculate_direction(np.array([x, y]), nest_position) # calculate direction to nest
                 directions[ant] = np.degrees(np.arctan2(direction_to_nest[1], direction_to_nest[0]))  # Move in the direction of the nest
                 x += cos_directions[ant] 
-                y += sin_directions[ant]
+                y += sin_directions[ant]     
                 distance_to_nest = np.linalg.norm(np.array([x, y]) - nest_position) # calculates the distance to the nest
                 if distance_to_nest < vis.nest_size: # if ant reaches the nest...
                     self.has_food[ant] = False # set status to no food
