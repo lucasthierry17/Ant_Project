@@ -5,29 +5,24 @@ import random
 
 WIDTH, HEIGHT = 1200, 800
 num_ants = 200
-PRATIO = 5
+PRATIO = 5 # ratio between screen and phero_grid
 nest = (WIDTH // 3.5, HEIGHT // 2)
-FPS = 10
 VSYNC = True
 SHOWFPS = True
 food_sources = []
 
-
-
 class Ants(pygame.sprite.Sprite):
     def __init__(self, nest, pheromones):
         super().__init__()
-        self.x = nest[0] # starting x coordinate
-        self.y = nest[1] # starting y
-        self.phero = pheromones
+        self.x, self.y = nest # starting coordinates
+        self.phero = pheromones 
         self.image = pygame.Surface((12, 21), pygame.SRCALPHA)
-        #self.image.fill((0, 0, 0, 0))
-        pygame.draw.circle(self.image, (120, 45, 45), (6, 5), 3)
+        pygame.draw.circle(self.image, (120, 45, 45), (6, 5), 3) # draw_ants
         self.orig_image = pygame.transform.rotate(self.image.copy(), -90)
         self.rect = self.orig_image.get_rect(center=nest)
         self.start_ang = random.randint(0, 360)  # Initial angle between 0 and 360 degrees
         self.angle_range = (-10, 10)  # Range for random angle change
-        self.desireDir = pygame.Vector2(np.cos(np.radians(self.start_ang)), np.sin(np.radians(self.start_ang)))
+        self.desireDir = pygame.Vector2(np.cos(np.radians(self.start_ang)), np.sin(np.radians(self.start_ang))) # direction 
         self.has_food = False
 
     def update(self):
@@ -77,14 +72,14 @@ class Ants(pygame.sprite.Sprite):
         
         # Check for collisions with screen boundaries
         if not pygame.Rect(0, 0, WIDTH, HEIGHT).collidepoint(self.x, self.y):
-            # Bounce back if the ant goes out of bounds
+            # Bounce back if the ant goes out of the screen 
             self.desireDir *= -1
             self.x += self.desireDir[0] * 2
             self.y += self.desireDir[1] * 2
 
         self.rect.center = (self.x, self.y)
 
-    def calculate_distance(self, start, target):
+    def calculate_distance(self, start, target): #  calculates distance between two points
         return math.sqrt((target[0] - start[0])**2 + (target[1] - start[1])**2)
     
 
@@ -96,17 +91,17 @@ class Pheromones:
 
     def update(self):
         self.img_array -= 1  # Evaporation rate
-        self.img_array = self.img_array.clip(0, 255)
-        pygame.surfarray.blit_array(self.image, self.img_array)
+        self.img_array = self.img_array.clip(0, 255) # clip to color range
+        pygame.surfarray.blit_array(self.image, self.img_array) 
         return self.image
 
 def main():
     pygame.init()
-    screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.SCALED, vsync=VSYNC)
-    pheromones = Pheromones((WIDTH, HEIGHT))
+    screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.SCALED, vsync=VSYNC) 
+    pheromones = Pheromones((WIDTH, HEIGHT)) # creating phero grid
     ants = pygame.sprite.Group()
 
-    for _ in range(num_ants):
+    for _ in range(num_ants): # adding num_ants
         ants.add(Ants(nest, pheromones))
 
     go = True
@@ -117,6 +112,7 @@ def main():
 
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 mousepos = pygame.mouse.get_pos()
+
                 if event.button == 1:
                     food_sources.append((mousepos[0] // PRATIO, mousepos[1] // PRATIO))
                 elif event.button == 3:
@@ -129,18 +125,17 @@ def main():
 
         # Draw everything onto the screen
         screen.fill(0)  # Fill black for the next step
-        scaled_screen = pygame.transform.scale(phero_grid, (WIDTH, HEIGHT))
+        scaled_screen = pygame.transform.scale(phero_grid, (WIDTH, HEIGHT)) # scale phero_grid back to normal screen size
         screen.blit(scaled_screen, (0, 0))  # Draw pheromone grid onto screen
         pygame.draw.circle(screen, [70, 50, 40], nest, 16, 5)  # Draw nest
 
         # Draw food sources
         for source in food_sources:
-            pygame.draw.circle(screen, (0, 200, 0), (source[0] * PRATIO, source[1] * PRATIO), 15)
+            pygame.draw.circle(screen, (0, 200, 0), (source[0] * PRATIO, source[1] * PRATIO), 15) # draw food
 
         ants.draw(screen)  # Draw ants directly onto the screen
 
         pygame.display.update()
-
 
 if __name__ == "__main__":
     main()
