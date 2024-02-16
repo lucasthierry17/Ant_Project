@@ -4,7 +4,7 @@ import math
 import random
 
 WIDTH, HEIGHT = 1200, 800
-num_ants = 10
+num_ants = 200
 PRATIO = 5
 nest = (WIDTH // 3.5, HEIGHT // 2)
 FPS = 10
@@ -22,7 +22,7 @@ class Ants(pygame.sprite.Sprite):
         self.phero = pheromones
         self.image = pygame.Surface((12, 21), pygame.SRCALPHA)
         #self.image.fill((0, 0, 0, 0))
-        pygame.draw.circle(self.image, (120, 45, 45), (6, 5), 5)
+        pygame.draw.circle(self.image, (120, 45, 45), (6, 5), 3)
         self.orig_image = pygame.transform.rotate(self.image.copy(), -90)
         self.rect = self.orig_image.get_rect(center=nest)
         self.start_ang = random.randint(0, 360)  # Initial angle between 0 and 360 degrees
@@ -40,13 +40,16 @@ class Ants(pygame.sprite.Sprite):
             if distance < 5: # ant has reached the nest
                 self.has_food = False 
             
-            else:
+            elif distance > 30 or self.phero.img_array[scaled_pos][2] < 75:
                 self.desireDir = pygame.Vector2(nest[0] - self.x, nest[1] - self.y).normalize() # go towards the nest
                 
                 random_angle = random.uniform(-50, 50)
                 self.desireDir.rotate_ip(random_angle)
                 # Blend the straight direction with the random direction
-                
+            
+            else:
+                self.desireDir = pygame.Vector2(nest[0] - self.x, nest[1] - self.y).normalize() # go towards the nest
+
             self.phero.img_array[scaled_pos] += (0, 100, 0) # update pheromones
 
 
@@ -55,7 +58,7 @@ class Ants(pygame.sprite.Sprite):
             if food_sources:
                 for food in food_sources:
                     distance = self.calculate_distance(scaled_pos, food)
-                    if distance < 10: # reaches the food source
+                    if distance < 5: # reaches the food source
                         self.has_food = True
                         break
                     elif distance < 30 or self.phero.img_array[scaled_pos][1] > 75: # smells and goes to the food
@@ -67,7 +70,7 @@ class Ants(pygame.sprite.Sprite):
             self.desireDir = self.desireDir.rotate(angle_change).normalize()
 
             # Update pheromones
-            self.phero.img_array[scaled_pos] += (0, 0, 75)
+            self.phero.img_array[scaled_pos] += (0, 0, 50)
         
         self.x += self.desireDir[0] * 2
         self.y += self.desireDir[1] * 2
@@ -83,6 +86,8 @@ class Ants(pygame.sprite.Sprite):
 
     def calculate_distance(self, start, target):
         return math.sqrt((target[0] - start[0])**2 + (target[1] - start[1])**2)
+    
+
 class Pheromones:
     def __init__(self, bigSize):
         self.surfSize = (int(bigSize[0] / PRATIO), int(bigSize[1] / PRATIO))
@@ -90,7 +95,7 @@ class Pheromones:
         self.img_array = np.array(pygame.surfarray.array3d(self.image), dtype=float)
 
     def update(self):
-        self.img_array -= 0.8  # Evaporation rate
+        self.img_array -= 1  # Evaporation rate
         self.img_array = self.img_array.clip(0, 255)
         pygame.surfarray.blit_array(self.image, self.img_array)
         return self.image
@@ -104,9 +109,6 @@ def main():
     for _ in range(num_ants):
         ants.add(Ants(nest, pheromones))
 
-    font = pygame.font.Font(None, 30)
-    clock = pygame.time.Clock()
-
     go = True
     while go:
         for event in pygame.event.get():
@@ -115,7 +117,12 @@ def main():
 
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 mousepos = pygame.mouse.get_pos()
-                food_sources.append((mousepos[0] // PRATIO, mousepos[1] // PRATIO))
+                if event.button == 1:
+                    food_sources.append((mousepos[0] // PRATIO, mousepos[1] // PRATIO))
+                elif event.button == 3:
+                    for source in food_sources:
+                        if math.dist(mousepos, (source[0] * PRATIO, source[1] * PRATIO)) < 15:
+                            food_sources.remove(source)
 
         phero_grid = pheromones.update()
         ants.update()
@@ -128,12 +135,9 @@ def main():
 
         # Draw food sources
         for source in food_sources:
-            pygame.draw.circle(screen, (0, 200, 0), (source[0] * PRATIO, source[1] * PRATIO), 30)
+            pygame.draw.circle(screen, (0, 200, 0), (source[0] * PRATIO, source[1] * PRATIO), 15)
 
         ants.draw(screen)  # Draw ants directly onto the screen
-
-        if SHOWFPS:
-            screen.blit(font.render(str(int(clock.get_fps())), True, [0, 200, 8]), (8, 8))
 
         pygame.display.update()
 
