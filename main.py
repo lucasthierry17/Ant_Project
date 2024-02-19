@@ -100,6 +100,8 @@ def main():
     pygame.init()
     start_menu = StartMenu()
     
+    start_screen_size = pygame.display.get_surface().get_size()  # Store the original screen size
+
     pheromones = Pheromones((WIDTH, HEIGHT)) # creating phero grid
     ants = pygame.sprite.Group()
     for _ in range(num_ants): # adding num_ants
@@ -127,6 +129,7 @@ def main():
                     elif event.type == pygame.KEYDOWN:
                         if event.key == pygame.K_ESCAPE:
                             running = False
+                            pygame.display.set_mode(start_screen_size)  # Set the screen size back to the original
                             start_menu.game_state = "start_menu"
 
                     elif event.type == pygame.MOUSEBUTTONDOWN:
