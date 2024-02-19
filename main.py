@@ -95,6 +95,9 @@ class Pheromones:
         pygame.surfarray.blit_array(self.image, self.img_array) 
         return self.image
 
+    def reset(self):
+        self.img_array.fill(0)
+
 
 def main():
     pygame.init()
@@ -112,6 +115,11 @@ def main():
         if start_menu.game_state == "start_menu":
             start_menu.handle_events()
             start_menu.draw()
+
+            # Clear everything when returning to the start menu
+            ants.empty()
+            pheromones.reset()
+            food_sources = []
 
         elif start_menu.game_state == "Simulation":
 
