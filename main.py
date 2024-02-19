@@ -104,8 +104,7 @@ def main():
 
     pheromones = Pheromones((WIDTH, HEIGHT)) # creating phero grid
     ants = pygame.sprite.Group()
-    for _ in range(num_ants): # adding num_ants
-        ants.add(Ants(nest, pheromones))
+    
 
     go = True   
     while go:
@@ -115,6 +114,9 @@ def main():
             start_menu.draw()
 
         elif start_menu.game_state == "Simulation":
+
+            for _ in range(int(start_menu.num_ants)): # adding the number of ants the user types in 
+                    ants.add(Ants(nest, pheromones))
 
             screen = pygame.display.set_mode((WIDTH, HEIGHT), vsync=VSYNC) 
             
