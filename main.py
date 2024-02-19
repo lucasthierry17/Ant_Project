@@ -11,6 +11,7 @@ nest = (WIDTH // 3.5, HEIGHT // 2)
 VSYNC = True
 SHOWFPS = True
 food_sources = []
+SPEED = 1
 
 class Ants(pygame.sprite.Sprite):
 
@@ -29,6 +30,7 @@ class Ants(pygame.sprite.Sprite):
 
 
     def update(self):
+        global SPEED 
 
         scaled_pos = (int(self.x / PRATIO), int(self.y / PRATIO))
         # Move the ant
@@ -68,15 +70,15 @@ class Ants(pygame.sprite.Sprite):
             # Update pheromones
             self.phero.img_array[scaled_pos] += (0, 0, 50)
         
-        self.x += self.desireDir[0] * 2
-        self.y += self.desireDir[1] * 2
+        self.x += self.desireDir[0] * SPEED
+        self.y += self.desireDir[1] * SPEED
         
         # Check for collisions with screen boundaries
         if not pygame.Rect(0, 0, WIDTH, HEIGHT).collidepoint(self.x, self.y):
             # Bounce back if the ant goes out of the screen 
             self.desireDir *= -1
-            self.x += self.desireDir[0] * 2
-            self.y += self.desireDir[1] * 2
+            self.x += self.desireDir[0] * SPEED
+            self.y += self.desireDir[1] * SPEED
 
         self.rect.center = (self.x, self.y)
 
