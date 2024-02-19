@@ -29,6 +29,7 @@ class Ants(pygame.sprite.Sprite):
 
 
     def update(self):
+
         scaled_pos = (int(self.x / PRATIO), int(self.y / PRATIO))
         # Move the ant
         
@@ -111,15 +112,15 @@ def main():
 
     go = True   
     while go:
-
         if start_menu.game_state == "start_menu":
+
             start_menu.handle_events()
             start_menu.draw()
 
             # Clear everything when returning to the start menu
             ants.empty()
             pheromones.reset()
-            food_sources = []
+            food_sources.clear() 
 
         elif start_menu.game_state == "Simulation":
 
