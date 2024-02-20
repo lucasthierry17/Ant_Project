@@ -49,10 +49,18 @@ class Ants:
                    
             self.positions[ant] = (x, y)
 
-            self.directions[ant] += np.random.uniform(-40, 40)
+            self.directions[ant] += np.random.uniform(-40, 40)    
+        
 
     def perception(self, food, perception_radius):
-        """this function contains the way, how the ants can find some food or the nest. It takes in the location of the food and the perception_radius. Every ant starts with none detected_targets. Every ant has a perception radius, in which they can "smell" food items. Every step and for each ant, the code checks, if there are any food_items in their radius."""
+        """this function contains the way, how the ants can find some food or the nest. It takes in the location of the food and the perception_radius.
+        Every ant starts with none detected_targets. Every ant has a perception radius, in which they can "smell" food items.
+        Every step and for each ant, the code checks, if there are any food_items in their radius.
+        
+        Input: Food Object, perception_radius
+        
+        Output: list of detected targets in the perception radius (detected_targets)"""
+
         detected_targets = []
         for ant_pos in self.positions:
             distances = np.linalg.norm(food.positions - ant_pos, axis=1)
@@ -60,6 +68,7 @@ class Ants:
             detected_targets.append(detected)
 
         return detected_targets
+        
 
     def approach_food(self, food, detected_food, approach_speed):
         """this function determines how to ants approch the food. The function takes in the location of the food, the detected_food from every ant and the approch_speed. The approch_speed determines how fast the ants move towards the food, if they have detected anything. This function is only in use, if an ant has detected a food_item. If an ant detects several food_items inside of their radius, then the distance is calculated and the ants move to the closest one. In the end, the position of the ant is updated towards the food_item"""
@@ -122,13 +131,13 @@ class Board:
 
         for ant, detected in enumerate(detected_food):
             if detected:
-                plt.plot(self.ants.positions[ant, 0], self.ants.positions[ant, 1], "rx") # if the ant has detected food, plot the ant in red so one can see the status of the ant
+                plt.plot(self.ants.positions[ant, 0], self.ants.positions[ant, 1], 'rx')
 
-        plt.title(f"Step {step + 1}/{num_steps}")
-        plt.xlabel("X Coordinate")
-        plt.ylabel("Y Coordinate")
-        plt.xlim(-board_x, board_x)
-        plt.ylim(-board_y, board_y)
+        plt.title(f'Step {step + 1}/{num_steps}')
+        plt.xlabel('X Coordinate')
+        plt.ylabel('Y Coordinate')
+        plt.xlim(-20, 20)
+        plt.ylim(-20, 20)
         plt.grid(True)
 
     def simulate(self, num_steps, perception_radius, approach_speed):
@@ -136,11 +145,9 @@ class Board:
         
 
         for step in range(num_steps):
-            detected_food = self.ants.perception(self.food, perception_radius)   
-               
-            #self.ants.return_home(self.ants.positions)
-            self.ants.movement()            
-            self.ants.positions = self.ants.approach_food(self.food, detected_food, approach_speed)   
+            self.ants.movement(perception_radius, approach_speed)
+            detected_food = self.ants.perception(self.food, perception_radius)
+            self.ants.positions = self.ants.approach_food(self.food, detected_food, approach_speed)
 
             self.visualize(detected_food, step)
 
@@ -153,19 +160,17 @@ class Board:
 
 
 # Set the number of steps, ants, perception radius, and approach speed
-
-num_steps = 100
-num_ants = 2
+num_steps = 30
+num_ants = 1
 num_food = 10
 perception_radius = 2
-approach_speed = 0.5
-board_x = 20
-board_y = 20
-starting_point = [0, 0] # please use the location of the nest
+approach_speed = 0.7
 
+start_time = time.time()
+board = Board(num_ants, num_food)
+board.simulate(num_steps, perception_radius, approach_speed) # runs the code 
+end_time = time.time()
+duration = end_time - start_time
+print(duration)
 
-
-board = Board(num_ants, num_food)  # sets up our board
-board.simulate(num_steps, perception_radius, approach_speed)  # runs the code
-
-
+# bewegen sich immer nur zurück zum Nest wenn beide Essen haben und zurück gehen!
