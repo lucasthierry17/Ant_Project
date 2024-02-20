@@ -11,11 +11,10 @@ nest = (WIDTH // 3.5, HEIGHT // 2)
 VSYNC = True
 SHOWFPS = True
 food_sources = []
-SPEED = 1
 
 class Ants(pygame.sprite.Sprite):
 
-    def __init__(self, nest, pheromones):
+    def __init__(self, nest, pheromones, speed):
         super().__init__()
         self.x, self.y = nest # starting coordinates
         self.phero = pheromones 
@@ -27,11 +26,10 @@ class Ants(pygame.sprite.Sprite):
         self.angle_range = (-10, 10)  # Range for random angle change
         self.desireDir = pygame.Vector2(np.cos(np.radians(self.start_ang)), np.sin(np.radians(self.start_ang))) # direction 
         self.has_food = False
+        self.speed = speed
 
 
     def update(self):
-        global SPEED 
-
         scaled_pos = (int(self.x / PRATIO), int(self.y / PRATIO))
         # Move the ant
         
@@ -70,15 +68,15 @@ class Ants(pygame.sprite.Sprite):
             # Update pheromones
             self.phero.img_array[scaled_pos] += (0, 0, 50)
         
-        self.x += self.desireDir[0] * SPEED
-        self.y += self.desireDir[1] * SPEED
+        self.x += self.desireDir[0] * self.speed
+        self.y += self.desireDir[1] * self.speed
         
         # Check for collisions with screen boundaries
         if not pygame.Rect(0, 0, WIDTH, HEIGHT).collidepoint(self.x, self.y):
             # Bounce back if the ant goes out of the screen 
             self.desireDir *= -1
-            self.x += self.desireDir[0] * SPEED
-            self.y += self.desireDir[1] * SPEED
+            self.x += self.desireDir[0] * self.speed
+            self.y += self.desireDir[1] * self.speed
 
         self.rect.center = (self.x, self.y)
 
@@ -127,7 +125,7 @@ def main():
         elif start_menu.game_state == "Simulation":
 
             for _ in range(int(start_menu.num_ants)): # adding the number of ants the user types in 
-                    ants.add(Ants(nest, pheromones))
+                    ants.add(Ants(nest, pheromones, speed = 1))
 
             screen = pygame.display.set_mode((WIDTH, HEIGHT), vsync=VSYNC) 
             
