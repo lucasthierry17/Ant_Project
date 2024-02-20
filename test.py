@@ -4,7 +4,7 @@ import math
 import random
 
 WIDTH, HEIGHT = 1200, 800
-NUM_ANTS = 100
+NUM_ANTS = 1
 PRATIO = 5  # Ratio between screen and phero_grid
 NEST = (WIDTH // 5, HEIGHT // 4)
 VSYNC = True
@@ -12,7 +12,8 @@ SHOWFPS = True
 FOOD_RADIUS = 20
 SPEED= 2
 NEST_SIZE = 15
-HOME_PHEROMONE = 50
+HOME_PHEROMONE = 200
+FOOD_PHEROMONE = 100
 SIZE_ANT = 5
 max_distance = 0
 food_sources = []
@@ -32,13 +33,17 @@ class Ants(pygame.sprite.Sprite):
         self.angle_range = (-8, 8)  # Range for random angle change
         self.desireDir = pygame.Vector2(np.cos(np.radians(self.angle)), np.sin(np.radians(self.angle)))  # Direction 
         self.has_food = False # True if food, else False
+        self.path_to_food = []  # List to store the path to the food source
+        self.last_sdp = (NEST[0] / PRATIO, NEST[1] / PRATIO)
 
     def update(self):
         global max_distance, SPEED
         angle = random.randint(0, 360)
         randDir = pygame.Vector2(np.cos(np.radians(angle)), np.sin(np.radians(angle)))
-        random_scale = 0.15
+        random_scale = 0.11
         scaled_pos = (int(self.x / PRATIO), int(self.y / PRATIO))
+        food_color = (0, 100, 0)
+        nest_color = (0, 0, 100)
 
         if self.has_food:
             self.update_with_food(randDir, random_scale, scaled_pos)
@@ -46,6 +51,7 @@ class Ants(pygame.sprite.Sprite):
             self.update_without_food(randDir, scaled_pos)
         self.move()
         self.check_boundaries()
+        self.last_sdp = scaled_pos
 
     def update_with_food(self, randDir, random_scale, scaled_pos):
         global max_distance
@@ -54,26 +60,36 @@ class Ants(pygame.sprite.Sprite):
             max_distance = distance
         if distance < (NEST_SIZE / PRATIO):
             self.has_food = False 
-            self.turn_around()
-
+        elif distance > max_distance - 15:
+            self.desireDir = pygame.Vector2(NEST[0] - self.x, NEST[1] - self.y).normalize()
         else:
             self.desireDir += pygame.Vector2(NEST[0] - self.x, NEST[1] - self.y).normalize() * .08
             self.desireDir = pygame.Vector2(self.desireDir + randDir * random_scale).normalize()
-            pheromone_value = 200 * (distance / max_distance)
-            if pheromone_value > 255:
-                pheromone_value = 255  
+            self.path_to_food.append(scaled_pos)  # Store current position in the path_to_food list
+        pheromone_value = 200 * (distance / max_distance)
+        if pheromone_value > 255:
+            pheromone_value = 255  
+        if scaled_pos != self.last_sdp:
             self.phero.img_array[scaled_pos] += (0, pheromone_value, 0)
 
     def update_without_food(self, randDir, scaled_pos):
-        random_angle = random.uniform(-10, 10)
+        random_angle = random.uniform(-8, 8)
         self.desireDir = self.desireDir.rotate(random_angle)
-        distance_to_nest = self.calculate_distance(scaled_pos, (NEST[0] / PRATIO, NEST[1] / PRATIO))
         if food_sources:
             self.update_with_food_sources(randDir, scaled_pos)
         else:
-            self.random_walk()
+            #self.random_walk() 
             #self.adjust_direction(scaled_pos, 1)
-        self.phero.img_array[scaled_pos] += (0, 0, HOME_PHEROMONE)
+            self.move_towards_food(scaled_pos)
+        if self.last_sdp != scaled_pos:
+            self.phero.img_array[scaled_pos] += (0, 0, HOME_PHEROMONE)
+    
+    def return_home(self):
+        # Follow the reverse of the path_to_food list to return home
+        while self.path_to_food:
+            next_pos = self.path_to_food.pop()  # Get the next position from the path_to_food list
+            self.desireDir = pygame.Vector2(next_pos[0] - self.x, next_pos[1] - self.y).normalize()  # Set direction towards next_pos
+            self.move()
 
     def random_walk(self):
         self.desireDir = self.desireDir.rotate(random.uniform(*self.angle_range))
@@ -88,16 +104,12 @@ class Ants(pygame.sprite.Sprite):
                 min_distance = distance
                 nearest_food = food
                 if min_distance < (FOOD_RADIUS / PRATIO):
-                    self.desireDir = pygame.Vector2(NEST[0] - scaled_pos[0], NEST[1] - scaled_pos[1]).normalize() #pg.Vector2(self.nest - self.pos).normalize()
                     self.has_food = True
-                    
-
-                    #self.turn_around()
-                elif min_distance < (FOOD_RADIUS):
+                elif min_distance < (FOOD_RADIUS / 2):
                     self.desireDir = pygame.Vector2(nearest_food[0] - scaled_pos[0], nearest_food[1] - scaled_pos[1]).normalize()
                 else:
                     #self.adjust_direction(scaled_pos, 1)
-                    self.random_walk()
+                    self.move_towards_food(scaled_pos)
     def move(self):
         self.x += self.desireDir[0] * SPEED 
         self.y += self.desireDir[1] * SPEED
@@ -129,22 +141,58 @@ class Ants(pygame.sprite.Sprite):
         if front[channel] == left[channel] == right[channel]: # go random if all values are equal
             random_angle = random.uniform(-10, 10)
             self.desireDir = self.desireDir.rotate(random_angle)
+
         else:
-            if max_concentration == left[channel]:
-                possible_directions.append(pygame.Vector2(-1, 0))  # Turn left
-            if max_concentration == front[channel]:
-                possible_directions.append(pygame.Vector2(0, -1))  # Move forward
-            if max_concentration == behind[channel]:
-                possible_directions.append(pygame.Vector2(0, 1))  # Move behind
+            #if max_concentration == left[channel]:
+            #    possible_directions.append(pygame.Vector2(-1, 0))  # Turn left
+            #if max_concentration == front[channel]:
+            #    possible_directions.append(pygame.Vector2(0, -1))  # Move forward
+            #if max_concentration == behind[channel]:
+            #    possible_directions.append(pygame.Vector2(0, 1))  # Move behind
             if max_concentration == right[channel]:
-                possible_directions.append(pygame.Vector2(1, 0))  # Turn right
-            
-            if possible_directions:
-                random_angle = random.uniform(-10, 10)
-                self.desireDir = random.choice(possible_directions).rotate(random_angle)
+                self.desireDir = pygame.Vector2(right[0] - scaled_pos[0], right[1] - scaled_pos[1]).normalize() # turn right
+            if max_concentration == left[channel]:
+                self.desireDir = pygame.Vector2(left[0] - scaled_pos[0], left[1] - scaled_pos[1]).normalize() # turn left
+            if max_concentration == front[channel]:
+                self.desireDir = pygame.Vector2(front[0] - scaled_pos[0], front[1] - scaled_pos[1]).normalize() # go to the front
+    
             else: 
                 random_angle = random.uniform(-10, 10)
                 self.desireDir = self.desireDir.rotate(random_angle)
+
+    def move_towards_food(self, scaled_pos):
+        # Define vectors for different directions
+        directions = [pygame.Vector2(0, -1), pygame.Vector2(-1, 0), pygame.Vector2(1, 0), pygame.Vector2(0, 1)]
+
+        # Calculate the positions of adjacent cells
+        adjacent_positions = [(scaled_pos[0], scaled_pos[1] - 1),  # Up
+                            (scaled_pos[0] - 1, scaled_pos[1]),  # Left
+                            (scaled_pos[0] + 1, scaled_pos[1]),  # Right
+                            (scaled_pos[0], scaled_pos[1] + 1)]  # Down
+
+        max_concentration = -1
+        max_direction = None
+
+        # Find the direction with the maximum pheromone concentration that doesn't lead towards the nest
+        for direction, adjacent_pos in zip(directions, adjacent_positions):
+            x, y = adjacent_pos
+            # Ensure that the adjacent position is within the grid bounds
+            if 0 <= x < self.phero.img_array.shape[0] and 0 <= y < self.phero.img_array.shape[1]:
+                concentration = self.phero.img_array[x, y, 1]  # Assuming green channel contains pheromone concentration
+                if concentration > max_concentration:
+                    max_concentration = concentration
+                    max_direction = direction
+
+        # If there's a direction with a positive pheromone concentration, move towards it
+        if max_concentration > 0:
+            self.desireDir = max_direction
+            print("Tried if")
+        else:
+            # If no positive concentration is found, move randomly
+            random_angle = random.uniform(-10, 10)
+            self.desireDir = self.desireDir.rotate(random_angle)
+            print("Tried else")
+        self.desireDir = self.desireDir.normalize()
 
 
 class Pheromones:
@@ -154,7 +202,7 @@ class Pheromones:
         self.img_array = np.array(pygame.surfarray.array3d(self.image), dtype=float)
 
     def update(self):
-        self.img_array -= 0.7  # Evaporation rate
+        self.img_array -= 0.1  # Evaporation rate
         self.img_array = self.img_array.clip(0, 255)  # Clip to color range
         pygame.surfarray.blit_array(self.image, self.img_array) 
         return self.image
@@ -179,7 +227,6 @@ def main():
 
     for _ in range(NUM_ANTS):  # Adding num_ants
         ants.add(Ants(NEST, pheromones))
-
 
     go = True
     while go:
