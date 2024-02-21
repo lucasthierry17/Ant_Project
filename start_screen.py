@@ -131,14 +131,17 @@ class StartMenu:
                         self.num_ants = ''
 
                     if self.ants_box_active: 
-                        self.num_ants += event.unicode
                         if event.key == pygame.K_BACKSPACE or event.key == pygame.K_DELETE:
                             self.num_ants = self.num_ants[:-1]
-
+                        else:
+                            self.num_ants += event.unicode
+                        
                     elif self.speed_box_active:
-                        self.speed += event.unicode
                         if event.key == pygame.K_BACKSPACE or event.key == pygame.K_DELETE:
                             self.speed = self.speed[:-1]
+                        else:
+                            self.speed += event.unicode
+
 
                 elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
 
