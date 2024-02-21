@@ -1,5 +1,5 @@
 import pygame
-
+import time
 
 clock = pygame.time.Clock()
 
@@ -12,17 +12,15 @@ class StartMenu:
         self.speed = ''
         self.initialize_start_menu()
         self.game_state = "start_menu"
-        # Cursor variables
-        self.ants_cursor = 0
+        # # Cursor variables
+        # self.ants_cursor = 0
         self.ants_box_active = False
-        self.speed_cursor = 0 
+        # self.speed_cursor = 0 
         self.speed_box_active = False
 
 
 
-
     def initialize_start_menu(self):
-        white_text =(255, 255, 255)
          # initialize font and size (for header and Start button)
         self.font = pygame.font.SysFont('Impact', 40)
         self.title = self.font.render('Ant Search Simulation', True, (0, 255, 0)) # title in green
@@ -62,45 +60,34 @@ class StartMenu:
         # input box for the user to type in the number of ants
         self.ants_box = pygame.Rect(self.screen_width / 2 - self.ants_text.get_width() / 2, self.screen_height - 270, self.ants_text.get_width(), self.ants_text.get_height())
 
+        self.ants_cursor = pygame.Rect(0, 0, 2, int(0.75 * self.ants_text.get_height()))
+        self.speed_cursor = pygame.Rect(0, 0, 2, int(0.75 * self.speed_text.get_height()))
+
+
         # input box for the speed of the ants
         self.speed_box = pygame.Rect(self.screen_width / 2 - self.ants_text.get_width() / 2, self.screen_height - 200, self.ants_text.get_width(), self.ants_text.get_height())
 
-        pygame.draw.rect(self.screen, white_text, self.ants_box, 2)        
-
-        if self.ants_box_active:
-            # text cursor 
-            if self.ants_cursor % 4 == 0:
-                self.num_ants += "|"
-            self.ants_cursor += 1 
-            try:
-                if self.num_ants[-1] == "|":
-                    self.num_ants = self.num_ants[:-1]
-            except:
-                pass
-        
-        if self.speed_box_active:
-            # cursor
-            if self.speed_cursor % 4 == 0:
-                self.speed += "|"
-            self.speed_cursor +=1
-            try:
-                if self.speed[-1] == "|":
-                    self.speed = self.speed[:-1]
-            except:
-                pass
-
-            
-
+        pygame.draw.rect(self.screen, white_text, self.ants_box, 2)         
         text_surface_ants = self.textbox_font.render(self.num_ants, True, white_text)
-
         width = max(200, text_surface_ants.get_width()+10)
         self.ants_box.w = width
 
+        if self.ants_box_active:
+            self.ants_cursor.topleft = (self.ants_box.x + self.ants_text.get_width() / 2 + text_surface_ants.get_width() / 2, self.ants_box.y + 5)
+
+            if time.time() % 1 > 0.5:
+                pygame.draw.rect(self.screen, (255, 255, 255), self.ants_cursor)
 
         pygame.draw.rect(self.screen, white_text, self.speed_box, 2)
         text_surface_speed = self.textbox_font.render(self.speed, True, white_text)
         width = max(200, text_surface_speed.get_width()+10)
         self.speed_box.w = width
+
+        if self.speed_box_active:
+            self.speed_cursor.topleft = (self.ants_box.x + self.ants_text.get_width() / 2 + text_surface_speed.get_width() / 2, self.speed_box.y + 5)
+
+            if time.time() % 1 > 0.5:
+                pygame.draw.rect(self.screen, (255, 255, 255), self.speed_cursor)
 
         # Center the text horizontally within the box
         ants_text_x = self.ants_box.x + ((self.ants_box.width - text_surface_ants.get_width()) // 2) - 20
@@ -135,7 +122,8 @@ class StartMenu:
                             self.num_ants = self.num_ants[:-1]
                         else:
                             self.num_ants += event.unicode
-                        
+            
+
                     elif self.speed_box_active:
                         if event.key == pygame.K_BACKSPACE or event.key == pygame.K_DELETE:
                             self.speed = self.speed[:-1]
@@ -159,7 +147,7 @@ class StartMenu:
 
                     if self.start_button_rect.collidepoint(event.pos):
                         print(f"Number of Ants: {int(self.num_ants)}")
-                        print(f"Speed: {int(self.speed)}")
+                        print(f"Speed: {self.speed}")
                         self.game_state = "Simulation"
             clock.tick(60)   
 
