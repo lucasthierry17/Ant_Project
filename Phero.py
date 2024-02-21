@@ -4,17 +4,15 @@ import math
 import random
 
 WIDTH, HEIGHT = 1200, 800
-num_ants = 150
+num_ants = 10
 PRATIO = 4 # ratio between screen and phero_grid
 nest = (WIDTH // 3.5, HEIGHT // 2)
 VSYNC = True
 SHOWFPS = True
 food_sources = []
-ALPHA = 4
-BETA = 0.7
+ALPHA = 7
+BETA = 1
 PHERO_THRESH = 5
-SPEED = 0.5
-DECAY_RATE = 0.77
 ant_positions_home = np.zeros((num_ants + 1, 2), dtype=int)
 ant_positions_home[-1] = nest
 amnt_food = len(food_sources)
@@ -52,13 +50,13 @@ class Ants(pygame.sprite.Sprite):
         # Assuming PHERO_THRESH is defined somewhere in your code
         high_phero = np.argwhere(self.phero.img_array[:, :, 1] > PHERO_THRESH)
 
-        #print(f"High Phero:\n{high_phero}")
+        print(f"High Phero:\n{high_phero}")
         phero_positions = np.array(list(zip(high_phero[:, 0], high_phero[:, 1])))
-        #print(f"Phero Positions:\n{phero_positions}")
+        print(f"Phero Positions:\n{phero_positions}")
 
         high_phero_differences = phero_positions - self.rect.center
         high_phero_distances = np.linalg.norm(high_phero_differences, axis=1)
-        #print(f"Phero Distances:\n{high_phero_distances}")
+        print(f"Phero Distances:\n{high_phero_distances}")
 
         # Assuming food_sources is defined somewhere in your code
         # You might need to adjust the length based on your actual requirements
@@ -66,7 +64,7 @@ class Ants(pygame.sprite.Sprite):
         #print(f"Unrounded Distances:\n{1000 / high_phero_distances}")
 
         # Print or use phero_values as needed
-        #print(f"Pheromone Values:\n {phero_values}")
+        print(f"Pheromone Values:\n {phero_values}")
 
         return phero_positions, phero_values
 
@@ -124,51 +122,57 @@ class Ants(pygame.sprite.Sprite):
                 self.phero.img_array[scaled_pos] += (0, 100, 0) # update pheromones
 
 
-        else:  # ant has no food
+        else: # ant has no food
             if food_sources:
-                for i, food in enumerate(food_sources):
+                for i,food in enumerate(food_sources):
                     distance = self.calculate_distance(scaled_pos, food)
-
-                    if distance < 9:  # reaches the food source
+                    
+                    if distance < 9: # reaches the food source
                         self.has_food = True
                         break
-
-                    elif self.phero.img_array[scaled_pos][1] > 50:  # smells and goes to the food
+            
+                    
+                    elif self.phero.img_array[scaled_pos][1] > 20: # smells and goes to the food
+                        #self.desireDir = pygame.Vector2(food[0] - scaled_pos[0], food[1] - scaled_pos[1])
                         food_index = i + amnt_food
-
+                        
                         pheromone_position, pheromone_values = self.get_pheromone_positions()
                         pheromone_position[food_index] = np.array(food) * PRATIO
                         distance_ant_food = np.linalg.norm(self.rect.center - (np.array(food)) * PRATIO)
+                        print(f"Distance_ant_food:\n{distance_ant_food}")
 
-                        if distance_ant_food > 50:
+                        if distance_ant_food < 50:
                             pheromone_values[food_index] = 0
-                            pheromone_values *= distance_ant_food.max()
                         else:
                             pheromone_values[food_index] = 100000000 / distance_ant_food
-
                         differences = pheromone_position - self.rect.center
-
-                        # Calculation of the actual distance
+                        # Calculation of the actual distanc
                         eta = np.linalg.norm(differences, axis=1)
+                        print(f"eta: {eta}\n{eta.shape}")
+                        #print(f"Eta:\n{eta}\n{eta.shape}")
+                        #print(f"Eta:\n{eta}")
+                        print(f"Pheromone_values:{pheromone_values}\n{pheromone_values.shape}")
 
                         # Total for the nominator:
                         total = sum((pheromone_values ** self.alpha) * (eta ** self.beta))
 
                         # Calculating the Probabilities:
                         probs = ((pheromone_values ** ALPHA) * (eta ** BETA)) / total
-
+                        #print(f"Wahrscheinlichkeiten: {probs}")
+                        #print(f"Wahrscheinlichkeiten: {probs}")
                         # Choosing the next direction according to the calculated probs
                         cumulative_probs = np.cumsum(probs)
-                        random_value = np.random.rand()  # Random Value between 0 and 1
+                        random_value = np.random.rand() # Random Value between 0 and 1
                         selected_position_index = np.searchsorted(cumulative_probs, random_value)
-
+                        #print(f"Ausgesuchte Position: {selected_position_index}")
                         # Richtungsvektor wird ausgesucht und durch den eigenen halbierten Betrag des Richtungsvektors dividiert
-                        direction_vector = differences[selected_position_index] / (eta[selected_position_index] / 3)
-
+                        direction_vector = differences[selected_position_index] / (eta[selected_position_index] / 2)
+                        
                         # Checking for negative Values:
+
+                        
                         self.x += direction_vector[0]
                         self.y += direction_vector[1]
-
 
 
             # Move randomly if no food source is found
@@ -179,15 +183,15 @@ class Ants(pygame.sprite.Sprite):
             # Update pheromones
             self.phero.img_array[scaled_pos] += (0, 0, 50)
         
-        self.x += self.desireDir[0] * SPEED
-        self.y += self.desireDir[1] * SPEED
+        self.x += self.desireDir[0] * 2
+        self.y += self.desireDir[1] * 2
         
         # Check for collisions with screen boundaries
         if not pygame.Rect(0, 0, WIDTH, HEIGHT).collidepoint(self.x, self.y):
             # Bounce back if the ant goes out of the screen 
             self.desireDir *= -1
-            self.x += self.desireDir[0] * SPEED
-            self.y += self.desireDir[1] * SPEED
+            self.x += self.desireDir[0] * 2
+            self.y += self.desireDir[1] * 2
 
         self.rect.center = (self.x, self.y)
 
@@ -206,7 +210,7 @@ class Pheromones:
         
 
     def update(self):
-        self.img_array -= DECAY_RATE  # Evaporation rate
+        self.img_array -= 0.5  # Evaporation rate
         self.img_array = self.img_array.clip(0, 255) # clip to color range
         pygame.surfarray.blit_array(self.image, self.img_array) 
         return self.image
