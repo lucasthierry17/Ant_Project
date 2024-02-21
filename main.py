@@ -125,7 +125,7 @@ def main():
         elif start_menu.game_state == "Simulation":
 
             for _ in range(int(start_menu.num_ants)): # adding the number of ants the user types in 
-                    ants.add(Ants(nest, pheromones, speed = 0.5))
+                    ants.add(Ants(nest, pheromones, speed = int(start_menu.speed)))
 
             screen = pygame.display.set_mode((WIDTH, HEIGHT), vsync=VSYNC) 
             
