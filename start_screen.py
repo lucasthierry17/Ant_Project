@@ -5,6 +5,9 @@ clock = pygame.time.Clock()
 
 class StartMenu:
     def __init__(self) -> None:
+        """
+        Initialize the StartMenu object with default settings.
+        """
         self.screen_width = 750
         self.screen_height = 450
         self.screen = pygame.display.set_mode((self.screen_width, self.screen_height))
@@ -21,6 +24,9 @@ class StartMenu:
 
 
     def initialize_start_menu(self):
+        """
+        Initialize fonts, texts, and other elements for the start menu.
+        """
          # initialize font and size (for header and Start button)
         self.font = pygame.font.SysFont('Impact', 40)
         self.title = self.font.render('Ant Search Simulation', True, (0, 255, 0)) # title in green
@@ -42,6 +48,9 @@ class StartMenu:
 
 
     def draw(self):
+        """
+        Draw the start menu on the screen.
+        """
         self.screen.fill((0, 0, 0)) # background black
        
         mouse_x, mouse_y = pygame.mouse.get_pos() 
@@ -119,52 +128,58 @@ class StartMenu:
 
 
     def handle_events(self):
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    pygame.quit()
-                    quit()
+        """
+        Handle events such as key presses and mouse clicks.
+        """
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                quit()
 
-                elif event.type == pygame.KEYDOWN:
-                    # if the number of ants input box is selected
-                    if self.ants_box_active: 
-                        # delete input with Backspace or Delete
-                        if event.key == pygame.K_BACKSPACE or event.key == pygame.K_DELETE:
-                            self.num_ants = self.num_ants[:-1]
-                        else:
-                            # update the variable with the given input
-                            self.num_ants += event.unicode
-            
-                    # if the speed input box is selected
-                    elif self.speed_box_active:
-                        # delete input with Backspace or Delete
-                        if event.key == pygame.K_BACKSPACE or event.key == pygame.K_DELETE:
-                            self.speed = self.speed[:-1]
-                        else:
-                            # update the variable with the given input
-                            self.speed += event.unicode
-
-
-                elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-
-                    # activate input box for number of ants when it's selected by the user
-                    if self.ants_box.collidepoint(event.pos):
-                        self.ants_box_active = True
+            elif event.type == pygame.KEYDOWN:
+                # if the number of ants input box is selected
+                if self.ants_box_active: 
+                    # delete input with Backspace or Delete
+                    if event.key == pygame.K_BACKSPACE or event.key == pygame.K_DELETE:
+                        self.num_ants = self.num_ants[:-1]
                     else:
-                        self.ants_box_active = False
-
-                    # activate input box for speed value when it's selected
-                    if self.speed_box.collidepoint(event.pos):
-                        self.speed_box_active = True
+                        # update the variable with the given input
+                        self.num_ants += event.unicode
+        
+                # if the speed input box is selected
+                elif self.speed_box_active:
+                    # delete input with Backspace or Delete
+                    if event.key == pygame.K_BACKSPACE or event.key == pygame.K_DELETE:
+                        self.speed = self.speed[:-1]
                     else:
-                        self.speed_box_active = False
+                        # update the variable with the given input
+                        self.speed += event.unicode
 
-                    if self.start_button_rect.collidepoint(event.pos):
-                        print(f"Number of Ants: {int(self.num_ants)}")
-                        print(f"Speed: {self.speed}")
-                        self.game_state = "Simulation"
-   
+
+            elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+
+                # activate input box for number of ants when it's selected by the user
+                if self.ants_box.collidepoint(event.pos):
+                    self.ants_box_active = True
+                else:
+                    self.ants_box_active = False
+
+                # activate input box for speed value when it's selected
+                if self.speed_box.collidepoint(event.pos):
+                    self.speed_box_active = True
+                else:
+                    self.speed_box_active = False
+
+                if self.start_button_rect.collidepoint(event.pos):
+                    print(f"Number of Ants: {int(self.num_ants)}")
+                    print(f"Speed: {self.speed}")
+                    self.game_state = "Simulation"
+
 
 def main():
+    """
+    Main function to run the simulation.
+    """
     pygame.init()
     start_menu = StartMenu()
 
