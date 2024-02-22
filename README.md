@@ -34,6 +34,9 @@ python -m pip install .
 ### now you get to the simulation screen
 ![Screenshot](simulation_screen.png)
 
+### you can place and remove food sources by simple mouse clicks
+https://github.com/lucasthierry17/Ant_Project/assets/96741488/13dbed3a-5391-4e78-93c4-6fb80974d701
+
 ## Documentation
 
 Include a link to your project's full documentation here.
