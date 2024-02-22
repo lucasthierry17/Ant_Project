@@ -5,17 +5,17 @@ import random
 
 WIDTH, HEIGHT = 1200, 800
 max_distance = 0
-num_ants = 200
+num_ants = 250 # optimal 150 - 200 (with max 3 food  sources)
 PRATIO = 5 # ratio between screen and phero_grid
 nest = (WIDTH // 3.5, HEIGHT // 2)
 VSYNC = True
 SHOWFPS = True
 food_sources = []
 ALPHA = 5
-BETA = 0.5
-PHERO_THRESH = 70
-EVAPURATION_RATE = 0.8
-STEPSIZE = 2
+BETA = 0.5 # Best Case < 1
+PHERO_THRESH = 230
+EVAPURATION_RATE = 0.67 # Between 0.5 and 0.7
+STEPSIZE = 2 # Betweeen 1,5 and 2
 ant_positions_home = np.zeros((num_ants + 1, 2), dtype=int)
 ant_positions_home[-1] = nest
 amnt_food = len(food_sources)
@@ -61,47 +61,27 @@ class Ants(pygame.sprite.Sprite):
     
     
     def get_nearest_food_source(self):
-        nearest_food_source = None
-        min_distance_food = float('inf')  # Setze min_distance_food auf unendlich zu Beginn
+        if not food_sources:
+            return None
 
-        # If the ant has no food origin it should follow the nearest food source
-    
-        for food_source in food_sources:
-            food_source = np.array(food_source) * PRATIO
-            
-            distance_food = np.linalg.norm(food_source - self.rect.center)
+        food_sources_arr = np.array(food_sources) * PRATIO
+        distances = np.linalg.norm(food_sources_arr - self.rect.center, axis=1)
+        nearest_index = np.argmin(distances)
 
-            if distance_food < min_distance_food:
-                min_distance_food = distance_food
-                nearest_food_source = food_source
-    
-        return nearest_food_source
+        return food_sources_arr[nearest_index] # Position der Futterquelle die am nähsten zur Ameise istt
 
 
 
     def colony_optimization(self, positions, pheromones, alpha=ALPHA, beta=BETA, divident=3):
 
-        # Getting Differences between the positions and the ant itself
         differences = positions - self.rect.center
-        #print(f"Positions:\n{positions}")
-        #print(f"Nest:\n{nest}")
-        #print(f"differences:\n{differences}")
-        # Calculation of eta, which contains the actual distance to those positions
         eta = np.linalg.norm(differences, axis=1)
-        #print(f"eta:\n{eta}")
-        #print(f"pheromones:\n{pheromones}")
-        # Total forr the nominator
-        total = sum((pheromones ** alpha) * (eta ** beta))
-
-        # Calculating the probabilities
+        total = np.sum((pheromones ** alpha) * (eta ** beta))
         probabilities = ((pheromones ** alpha) * (eta ** beta)) / total
-        #print(f"probabilities:\n{probabilities}")
         cumulative_probs = np.cumsum(probabilities)
         random_value = np.random.rand()
         selected_position_index = np.searchsorted(cumulative_probs, random_value)
         direction_vector = differences[selected_position_index] / (eta[selected_position_index] / divident)
-        #print(f"Probs:\n{probabilities}")
-        #print(f"selected_direction_vector: {differences[selected_position_index]}\nThe Position which was given:{positions[selected_position_index]}")
         return direction_vector
 
     
@@ -128,10 +108,9 @@ class Ants(pygame.sprite.Sprite):
                 distances_phero = pheromone_position - self.rect.center
                 distances_phero = np.linalg.norm(distances_phero, axis=0)
 
-                indices =  np.where(distances_phero < 10)
+                indices =  np.where(distances_phero < 10) # -> SVEN
                 pheromone_position = pheromone_position[indices]
                 pheromone_values = pheromone_values[indices]
-                #print(f"Pheromon Werte bevorr nest:\n{pheromone_values}")
 
                 pheromone_position = np.append(pheromone_position, [np.array(nest)], axis=0)
                 pheromone_values = np.append(pheromone_values, 1000)
@@ -179,10 +158,9 @@ class Ants(pygame.sprite.Sprite):
                         indices =  np.where(distances_phero < 100)
                         pheromone_position = pheromone_position[indices]
                         pheromone_values = pheromone_values[indices]
-                        #print(f"Distances_phero: {distances_phero}")
 
                         min_distance_phero = np.min(distances_phero)
-                        if min_distance_phero > 10:
+                        if min_distance_phero > 40:
                             self.search_for_food = False
                             self.coming_from_food_source = None
 
@@ -195,21 +173,21 @@ class Ants(pygame.sprite.Sprite):
                             nearest_food_source = self.get_nearest_food_source()
                             pheromone_position = np.append(pheromone_position, [np.array(nearest_food_source)], axis=0)
                             #print(f"Pheromone_position:\n{pheromone_position}\n food_position: {nearest_food_source}")
-                            pheromone_values = np.append(pheromone_values, 10000)
+                            pheromone_values = np.append(pheromone_values, 1000)
                             #print(f"Pheromone_value:\n{pheromone_values}"
                             direction_vector = self.colony_optimization(positions=pheromone_position, pheromones=pheromone_values, divident=1)
 
                         elif np.any(self.coming_from_food_source):
                             pheromone_position = np.append(pheromone_position, [np.array(self.coming_from_food_source)], axis=0)
                             #print(f"Pheromone_position:\n{pheromone_position}\n food_position: {nearest_food_source}")
-                            pheromone_values = np.append(pheromone_values, 10000)
+                            pheromone_values = np.append(pheromone_values, 1000)
                             #print(f"Pheromone_value:\n{pheromone_values}"
                             direction_vector = self.colony_optimization(positions=pheromone_position, pheromones=pheromone_values, divident=1)
 
                         else:
                             pheromone_position = np.append(pheromone_position, [np.array(nearest_food_source)], axis=0)
                             #print(f"Pheromone_position:\n{pheromone_position}\n food_position: {nearest_food_source}")
-                            pheromone_values = np.append(pheromone_values, 10000)
+                            pheromone_values = np.append(pheromone_values, 1000)
                             #print(f"Pheromone_value:\n{pheromone_values}"
                             direction_vector = self.colony_optimization(positions=pheromone_position, pheromones=pheromone_values, divident=1)
                         
