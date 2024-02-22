@@ -113,7 +113,7 @@ def main():
     go = True   
     while go:
         if start_menu.game_state == "start_menu":
-
+            pygame.display.set_caption("Start Menu")
             start_menu.handle_events()
             start_menu.draw()
 
@@ -123,7 +123,7 @@ def main():
             food_sources.clear() 
 
         elif start_menu.game_state == "Simulation":
-
+            pygame.display.set_caption("Simulation")
             for _ in range(int(start_menu.num_ants)): # adding the number of ants the user types in 
                     ants.add(Ants(nest, pheromones, speed = float(start_menu.speed)))
 
