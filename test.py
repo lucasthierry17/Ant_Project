@@ -123,10 +123,10 @@ class Ants(pygame.sprite.Sprite):
         return self.x, self.y
     
     
-    def follow_pheromones(self, scaled_pos, channel): # this function is not done, do not change anything
-        right_sensor_dir = self.desireDir.rotate(-90).normalize() *2
-        left_sensor_dir = self.desireDir.rotate(90).normalize() *2
-        straight_sensor_dir = self.desireDir.normalize() *2
+    """def follow_pheromones(self, scaled_pos, channel): # this function is not done, do not change anything
+        right_sensor_dir = self.desireDir.rotate(-90).normalize() 
+        left_sensor_dir = self.desireDir.rotate(90).normalize() 
+        straight_sensor_dir = self.desireDir.normalize() 
         #print(right_sensor_dir, left_sensor_dir, straight_sensor_dir)
 
         right_sensor_index = (int(scaled_pos[0] + right_sensor_dir[0]), int(scaled_pos[1] + right_sensor_dir[1]))
@@ -148,7 +148,17 @@ class Ants(pygame.sprite.Sprite):
             elif left > straight:
                 self.desireDir = left_sensor_dir
             else:
-                self.desireDir = straight_sensor_dir
+                self.desireDir = straight_sensor_dir"""
+    def answer(self, scaled):
+        mid_sens = Vec2.vint(self.pos + pg.Vector2(20, 0).rotate(self.ang))
+        left_sens = Vec2.vint(self.pos + pg.Vector2(18, -8).rotate(self.ang)) # -9
+        right_sens = Vec2.vint(self.pos + pg.Vector2(18, 8).rotate(self.ang))
+
+    def sensCheck(self, pos): #, pos2): # checks given points in Array, IDs, and pixels on screen.
+        sdpos = (int(pos[0]/PRATIO),int(pos[1]/PRATIO))
+        array_r = self.phero.img_array[sdpos]
+        ga_r = self.drawSurf.get_at(pos)[:3]
+        return array_r, self.isMyTrail[sdpos], ga_r
 
 class Pheromones:
     def __init__(self, bigSize):
