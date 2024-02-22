@@ -35,6 +35,10 @@ class StartMenu:
         # font for the text in the input box
         self.textbox_font = pygame.font.SysFont('Arial', min(25, int(0.8 * self.ants_text.get_height())))
 
+        self.value_range_font = pygame.font.SysFont('Arial', 15)
+        self.value_range_ants = self.value_range_font.render('Please select a value between 0 and 5000', True, (255, 255, 255))
+        self.value_range_speed = self.value_range_font.render('Please select a float value between 0.1 and 3', True, (255, 255, 255))
+
 
 
     def draw(self):
@@ -52,7 +56,7 @@ class StartMenu:
         # draw title, start button and heading of the input box
         self.screen.blit(self.title, (self.screen_width/2 - self.title.get_width()/2, self.screen_height - (self.screen_height - 50)))
         self.screen.blit(self.start_button, (self.screen_width/2 - self.start_button.get_width()/2, self.screen_height - 100))
-        self.screen.blit(self.ants_text, (self.screen_width/2 - self.ants_text.get_width()/2, self.screen_height - 300))
+        self.screen.blit(self.ants_text, (self.screen_width/2 - self.ants_text.get_width()/2, self.screen_height - 320))
         self.screen.blit(self.speed_text,(self.screen_width/2 - self.speed_text.get_width()/2, self.screen_height - 230))
 
         white_text = (255,255,255)
@@ -61,7 +65,7 @@ class StartMenu:
         self.ants_box = pygame.Rect(self.screen_width / 2 - self.ants_text.get_width() / 2, self.screen_height - 270, self.ants_text.get_width(), self.ants_text.get_height())
 
         # input box for the speed of the ants
-        self.speed_box = pygame.Rect(self.screen_width / 2 - self.ants_text.get_width() / 2, self.screen_height - 200, self.ants_text.get_width(), self.ants_text.get_height())
+        self.speed_box = pygame.Rect(self.screen_width / 2 - self.ants_text.get_width() / 2, self.screen_height - 180, self.ants_text.get_width(), self.ants_text.get_height())
 
         # text cursor for both input boxes
         self.ants_cursor = pygame.Rect(0, 0, 2, int(0.75 * self.ants_text.get_height()))
@@ -106,6 +110,10 @@ class StartMenu:
         # print the input 
         self.screen.blit(text_surface_ants, (ants_text_x, ants_text_y))
         self.screen.blit(text_surface_speed,(speed_text_x, speed_text_y))
+
+        # Draw the value range information
+        self.screen.blit(self.value_range_ants, (self.screen_width / 2 - self.value_range_ants.get_width() / 2, self.screen_height - 290))
+        self.screen.blit(self.value_range_speed, (self.screen_width / 2 - self.value_range_speed.get_width() / 2, self.screen_height - 200))
 
         pygame.display.update()
 
