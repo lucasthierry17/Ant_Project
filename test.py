@@ -5,12 +5,12 @@ import random
 
 WIDTH, HEIGHT = 900, 600
 NUM_ANTS = 1
-PRATIO = 3  # Ratio between screen and phero_grid
+PRATIO = 4  # Ratio between screen and phero_grid
 NEST = (WIDTH // 5, HEIGHT // 4)
 VSYNC = True
 SHOWFPS = True
-FOOD_RADIUS = 10
-SPEED= 1
+FOOD_RADIUS = 25
+SPEED= 2
 NEST_SIZE = 10
 HOME_PHEROMONE = 200
 FOOD_PHEROMONE = 100
@@ -69,16 +69,16 @@ class Ants(pygame.sprite.Sprite):
         if pheromone_value > 255:
             pheromone_value = 255  
         if scaled_pos != self.last_sdp:
-            self.phero.img_array[scaled_pos] += (0, FOOD_PHEROMONE, 0)
+            self.phero.img_array[scaled_pos] += (0, pheromone_value, 0)
 
     def update_without_food(self, randDir, scaled_pos):
         random_angle = random.uniform(-8, 8)
         self.desireDir = self.desireDir.rotate(random_angle)
         if food_sources:
-            self.update_with_food_sources(randDir, scaled_pos)
+            self.update_with_food_sources(scaled_pos)
         else:
             #self.move_towards_food(scaled_pos, 1)
-            self.last_try(scaled_pos)
+            self.follow_pheromones(scaled_pos, 1)
         if self.last_sdp != scaled_pos:
             self.phero.img_array[scaled_pos] += (0, 0, HOME_PHEROMONE)
 
@@ -86,10 +86,9 @@ class Ants(pygame.sprite.Sprite):
         self.desireDir = self.desireDir.rotate(random.uniform(*self.angle_range))
 
 
-    def update_with_food_sources(self, randDir, scaled_pos):
+    def update_with_food_sources(self, scaled_pos):
         min_distance = float("inf")
         nearest_food = None
-        random_scale = 0.11
         for food in food_sources:
             distance = self.calculate_distance(scaled_pos, food)
             if distance < min_distance:
@@ -101,10 +100,9 @@ class Ants(pygame.sprite.Sprite):
 
                 elif min_distance < (FOOD_RADIUS / 2):
                     self.desireDir = pygame.Vector2(nearest_food[0] - scaled_pos[0], nearest_food[1] - scaled_pos[1]).normalize()
+
                 else:
-                    #self.adjust_direction(scaled_pos, 1)
-                    #self.move_towards_food(scaled_pos, 1)
-                    self.last_try(scaled_pos)
+                    self.follow_pheromones(scaled_pos, 2)
     def move(self):
         self.x += self.desireDir[0] * SPEED 
         self.y += self.desireDir[1] * SPEED
@@ -124,53 +122,33 @@ class Ants(pygame.sprite.Sprite):
         self.y += self.desireDir[1] * SPEED
         return self.x, self.y
     
-
-    """def move_towards_food(self, scaled_pos, channel):
-        directions = [pygame.Vector2(0, -1), pygame.Vector2(-1, 0), pygame.Vector2(1, 0), pygame.Vector2(0, 1)]
-        up = self.phero.img_array[scaled_pos[0], scaled_pos[1] - 1, channel]
-        right = self.phero.img_array[scaled_pos[0] + 1, scaled_pos[1], channel]
-        left = self.phero.img_array[scaled_pos[0] -1, scaled_pos[1], channel]
-        down = self.phero.img_array[scaled_pos[0], scaled_pos[1] +1, channel]
-        print(up, right, left, down)
-        if left == right == up == down == 0:
-            self.random_walk()
-        else:
-            if up < min(right, left, down):
-                self.desireDir = directions[0]
-                print("up: ", up)
-        
-            elif right < min(left, down):
-                self.desireDir = directions[2]
-                print("right: ", right)
-            elif left < down:
-                self.desireDir = directions[1]
-                print("left: ", left)
-            else:
-                self.desireDir = directions[3]
-                print("down: ", down)"""
     
-    def last_try(self, scaled_pos):
-        right_sensor_dir = self.desireDir.rotate(-10)
-        left_sensor_dir = self.desireDir.rotate(10)
-        straight_sensor_dir = self.desireDir
+    def follow_pheromones(self, scaled_pos, channel): # this function is not done, do not change anything
+        right_sensor_dir = self.desireDir.rotate(-90).normalize() *2
+        left_sensor_dir = self.desireDir.rotate(90).normalize() *2
+        straight_sensor_dir = self.desireDir.normalize() *2
+        #print(right_sensor_dir, left_sensor_dir, straight_sensor_dir)
 
         right_sensor_index = (int(scaled_pos[0] + right_sensor_dir[0]), int(scaled_pos[1] + right_sensor_dir[1]))
-        left_sensor_index = (int(scaled_pos[0] + left_sensor_dir.x), int(scaled_pos[1] + left_sensor_dir[1]))
-        straight_sensor_index = (int(scaled_pos[0] + straight_sensor_dir.x), int(scaled_pos[1] + straight_sensor_dir[1]))
+        left_sensor_index = (int(scaled_pos[0] + left_sensor_dir[0]), int(scaled_pos[1] + left_sensor_dir[1]))
+        straight_sensor_index = (int(scaled_pos[0] + straight_sensor_dir[0]), int(scaled_pos[1] + straight_sensor_dir[1]))
+        #print(right_sensor_index, left_sensor_index, straight_sensor_index)
 
-        right = self.phero.img_array[right_sensor_index[0], right_sensor_index[1]][1]
-        left = self.phero.img_array[left_sensor_index[0], left_sensor_index[1]][1]
-        straight = self.phero.img_array[straight_sensor_index[0], straight_sensor_index[1]][1]
+        right = self.phero.img_array[right_sensor_index[0], right_sensor_index[1]][channel]
+        left = self.phero.img_array[left_sensor_index[0], left_sensor_index[1]][channel]
+        straight = self.phero.img_array[straight_sensor_index[0], straight_sensor_index[1]][channel]
+        #print(left, right, straight)
 
-        if right > max(left, straight):
-            self.desireDir = right_sensor_dir
-            print("right")
-        elif left > straight:
-            self.desireDir = left_sensor_dir
-            print("left")
+        if right == left == straight: 
+            self.random_walk()
+            #print("went random")
         else:
-            self.desireDir = straight_sensor_dir
-            print("straight")
+            if right > max(left, straight):
+                self.desireDir = right_sensor_dir
+            elif left > straight:
+                self.desireDir = left_sensor_dir
+            else:
+                self.desireDir = straight_sensor_dir
 
 class Pheromones:
     def __init__(self, bigSize):
