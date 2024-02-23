@@ -39,7 +39,7 @@ pip install -r requirements.txt
 - press the **START** button to start the simulation
 
 ### Then the simulation screen opens
-![Simulation](simulation_screen.png)
+![simulation_screen](https://github.com/lucasthierry17/Ant_Project/assets/96741488/f574f13e-65d8-4d28-853c-2a1b6e5b3d2b)
 
 ### Food Placement
 You can place and remove food sources by simple mouse clicks
