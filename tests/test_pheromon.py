@@ -3,9 +3,6 @@ import pytest
 import pygame
 from source.main import Pheromones
 from source.main import Ants
-pygame.init()
-pygame.display.set_mode((350, 100), vsync=True) 
-
 
 
 
