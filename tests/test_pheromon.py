@@ -4,7 +4,8 @@ import pygame
 from source.main import Pheromones
 from source.main import Ants
 
-
+pygame.init()
+pygame.display.set_mode((1350, 800)) 
 
 def test_update():
     pher=Pheromones((350,100))
@@ -20,8 +21,6 @@ def test_reset():
     pher.reset()
     result=pher.img_array
     assert result is not start #image gets Cleared
-
-
 
 
 if __name__ == '__main__':

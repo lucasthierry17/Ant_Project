@@ -3,6 +3,9 @@ import pytest
 import pygame
 from source.main import Pheromones
 from source.main import Ants
+pygame.init()
+pygame.display.set_mode((1350, 800)) 
+
 
 def test_calculate_distance():
     """Testing calculate directions in Ants"""
@@ -13,7 +16,6 @@ def test_calculate_distance():
     for run, entry in enumerate(target):
         result=Ants.calculate_distance(self_replacement,start, entry)
         assert result == expected_result[run] # Calculates the Distance between two spots
-
 
 
 def test_scaled_position(): ## Muss eingefügt werden
