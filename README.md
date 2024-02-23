@@ -1,18 +1,21 @@
-## How to use Ant_Project
+## Dependencies
 
-the package for our project
-
-The project setup is documented in [project_setup.md](project_setup.md). Feel free to remove this document (and/or the link to this document) if you don't need it.
+ - Python
+ - Pygame
+ - Numpy
 
 ## Installation
-
-To install Ant_Project from GitHub repository, do:
-
-```console
+First Clone the Github repository:
+```
 git clone https://github.com/lucasthierry17/Ant_Project.git
+```
+Go into the repo:
+```
 cd Ant_Project
-python -m pip install .
-# or on mac: python3 -m pip install .
+```
+then install all Dependencies:
+```
+pip install -r requirements.txt
 ```
 
 ## How to run the simulation
@@ -24,18 +27,28 @@ python -m pip install .
    ```console
    python main.py
    ```
-### now you get to the start screen
+### First you see the start menu
 ![Screenshot](start_screen.png)
 - here you can select the parameters you want
 - type in a value for the number of ants
 - then type in a speed value
 - press the START button to start the simulation
 
-### now you get to the simulation screen
+### Then the simulation screen opens
 ![Screenshot](simulation_screen.png)
 
-### you can place and remove food sources by simple mouse clicks
-https://github.com/lucasthierry17/Ant_Project/assets/96741488/13dbed3a-5391-4e78-93c4-6fb80974d701
+### Food Placement
+You can place and remove food sources by simple mouse clicks
+
+https://github.com/lucasthierry17/Ant_Project/assets/96741488/c9d30cf5-9261-4a96-8739-0196ba421fdf
+- press left mouse button to place a new food source where you want
+- press right mouse button on the food source you want to remove
+
+### Restart with new parameters
+To restart the simulation with new parameters simpy press 'ENTER'
+
+- Then the simulation stops and the start menu reopens
+- there you can put in new variables and restart the simulation
 
 ## Documentation
 
