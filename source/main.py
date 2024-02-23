@@ -134,7 +134,6 @@ class Ants(pygame.sprite.Sprite):
             random_angle = random.uniform(0, 360)
             self.desire_dir = pygame.Vector2(1, 0).rotate(random_angle)
     
-
 class Pheromones:
     """This class handles generating and updating the Pheromone arrays"""
     def __init__(self, big_screen_size):
