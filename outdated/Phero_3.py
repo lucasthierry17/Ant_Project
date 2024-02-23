@@ -36,7 +36,6 @@ class Ants(pygame.sprite.Sprite):
         self.last_sdp = (nest[0]/10/2,nest[1]/10/2)
 
         
-
     def update(self):
         global max_distance, SPEED
         angle = random.randint(0, 360)
@@ -50,6 +49,7 @@ class Ants(pygame.sprite.Sprite):
             self.update_without_food(randDir, scaled_pos)
         self.move()
         self.check_boundaries()
+
 
     def update_with_food(self, randDir, random_scale, scaled_pos):
         global max_distance
@@ -77,7 +77,6 @@ class Ants(pygame.sprite.Sprite):
         if food_sources:
             self.update_with_food_sources(scaled_pos)
         else:
-            #self.move_towards_food(scaled_pos, 1)
             self.follow_pheromones(scaled_pos, 1)
         if self.last_sdp != scaled_pos:
             self.phero.img_array[scaled_pos] += (0, 0, HOME_PHEROMONE)
@@ -123,7 +122,7 @@ class Ants(pygame.sprite.Sprite):
         return self.x, self.y
     
     
-    """def follow_pheromones(self, scaled_pos, channel): # this function is not done, do not change anything
+    def follow_pheromones(self, scaled_pos, channel): # this function is not done, do not change anything
         right_sensor_dir = self.desireDir.rotate(-90).normalize() 
         left_sensor_dir = self.desireDir.rotate(90).normalize() 
         straight_sensor_dir = self.desireDir.normalize() 
@@ -148,17 +147,8 @@ class Ants(pygame.sprite.Sprite):
             elif left > straight:
                 self.desireDir = left_sensor_dir
             else:
-                self.desireDir = straight_sensor_dir"""
-    def answer(self, scaled):
-        mid_sens = Vec2.vint(self.pos + pg.Vector2(20, 0).rotate(self.ang))
-        left_sens = Vec2.vint(self.pos + pg.Vector2(18, -8).rotate(self.ang)) # -9
-        right_sens = Vec2.vint(self.pos + pg.Vector2(18, 8).rotate(self.ang))
-
-    def sensCheck(self, pos): #, pos2): # checks given points in Array, IDs, and pixels on screen.
-        sdpos = (int(pos[0]/PRATIO),int(pos[1]/PRATIO))
-        array_r = self.phero.img_array[sdpos]
-        ga_r = self.drawSurf.get_at(pos)[:3]
-        return array_r, self.isMyTrail[sdpos], ga_r
+                self.desireDir = straight_sensor_dir
+    
 
 class Pheromones:
     def __init__(self, bigSize):
