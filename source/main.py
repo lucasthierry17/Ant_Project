@@ -7,19 +7,17 @@ from start_screen import StartMenu
 
 
 WIDTH, HEIGHT = 1200, 800
-NUM_ANTS = 300 # number of ants
 PRATIO = 5 # ratio between screen and phero_grid
 NEST = (WIDTH // 3.5, HEIGHT // 2) 
 VSYNC = True
-SPEED = 2
 HOME_PHEROMONE = 50
 FOOD_PHEROMONE = 70
-DECAY_RATE = 0.6
+DECAY_RATE = 0.7 # the higher the fast the pheromones disappear (between 0-1)
 NEST_SIZE = 30
 FOOD_SOURCES = [] 
 
 class Ants(pygame.sprite.Sprite):
-    """ANT Class, changes the ant orientation"""
+    """ANT Class, changes the orientation of the ant"""
     def __init__(self, nest, pheromones, speed):
         super().__init__()
         self.x_pos, self.y_pos = nest  # starting coordinates
@@ -126,9 +124,19 @@ class Ants(pygame.sprite.Sprite):
         self.y_pos += self.desire_dir[1] * self.speed
 
     def random_walk(self):
-        angle_change = random.uniform(-8, 8)
-        self.desire_dir = self.desire_dir.rotate(angle_change).normalize()
-    
+        #angle_change = random.uniform(-8, 8)
+        #self.desire_dir = self.desire_dir.rotate(angle_change)
+        #print(self.desire_dir)
+        #self.desire_dir = self.desire_dir.rotate(angle_change).normalize()
+        angle_change = random.uniform(*self.angle_range)
+        self.desire_dir = self.desire_dir.rotate(angle_change)
+        if self.desire_dir.length() > 0:
+            self.desire_dir = self.desire_dir.normalize()
+        else:
+            # If the length of the vector is zero, generate a new random direction
+            random_angle = random.uniform(0, 360)
+            self.desire_dir = pygame.Vector2(1, 0).rotate(random_angle)
+
 
 class Pheromones:
     """This class handles generating and updating the Pheromone arrays"""

@@ -55,10 +55,10 @@ class StartMenu:
                                                 min(25, int(0.8 * self.ants_text.get_height())))
 
         self.value_range_font = pygame.font.SysFont('Arial', 15)
-        num_ants_range_info = 'Please select a value between 0 and 5000'
+        num_ants_range_info = 'Please select a value between 0 and 800'
         self.value_range_ants = self.value_range_font.render(num_ants_range_info,
                                                              True, (255, 255, 255))
-        speed_range_info = 'Please select a float value between 0.1 and 3'
+        speed_range_info = 'Please select a float value between 0.5 and 2'
         self.value_range_speed = self.value_range_font.render(speed_range_info,
                                                               True, (255, 255, 255))
 
