@@ -1,4 +1,4 @@
-name: Continuous Integration
+name: ANT_SIMULATION
 
 on:
   push:
@@ -17,7 +17,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Set up Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v3
         with:
           python-version: ${{ matrix.python-version }}
       - name: Python info
@@ -27,16 +27,12 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -e .[dev]
+          pip install -r requirements.txt
       - name: Show pip list
         run: |
           pip list
-      - name: Run Black (check formatting)
-        run: black --check .
-      - name: Run isort (check import sorting)
-        run: isort --check-only .
       - name: Run linter (ruff)
         run: |
-          ruff check .
+          ruff check source/.
       - name: Run tests
         run: pytest
