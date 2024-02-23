@@ -1,3 +1,18 @@
+"""
+Ant Search Simulation Main Module
+
+This module defines the main simulation for the ant search. It utilizes the StartMenu class
+from the 'start_screen' module to manage the start menu. Ants, pheromones, and food sources
+are simulated on the screen.
+
+Classes:
+- Ants: Sprite class representing ants in the simulation.
+- Pheromones: Class managing the pheromone grid in the simulation.
+
+Functions:
+- main(): Main function to run the simulation.
+"""
+
 import pygame
 import numpy as np
 import math
@@ -125,7 +140,7 @@ def main():
         elif start_menu.game_state == "Simulation":
             pygame.display.set_caption("Simulation")
             for _ in range(int(start_menu.num_ants)): # adding the number of ants the user types in 
-                    ants.add(Ants(nest, pheromones, speed = float(start_menu.speed)))
+                    ants.add(Ants(nest,pheromones,speed=float(start_menu.speed)))
 
             screen = pygame.display.set_mode((WIDTH, HEIGHT), vsync=VSYNC) 
             
