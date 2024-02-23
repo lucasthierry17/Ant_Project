@@ -87,8 +87,7 @@ class Ants(pygame.sprite.Sprite):
                             self.my_food_source = None
                         break
                     
-            # Move towards the food source if it's not too far or if pheromone value is high enough
-            
+                # Move towards the food source if it's not too far or if pheromone value is high enough
                 if min_distance < 15 or self.phero.img_array[scaled_pos][1] > 75:
                     if self.my_food_source:
                         self.desire_dir = pygame.Vector2(self.my_food_source[0] - scaled_pos[0], self.my_food_source[1] - scaled_pos[1])
