@@ -28,7 +28,7 @@ pip install -r requirements.txt
    python main.py
    ```
 ### First you see the start menu
-![Screenshot](start_screen.png)
+![start_menu](https://github.com/lucasthierry17/Ant_Project/assets/96741488/d2f7ec1c-a1a1-4cbb-847e-0d474dcc7cfe)
 - here you can select the parameters you want
 - type in a value for the number of ants
 - then type in a speed value
