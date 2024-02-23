@@ -50,8 +50,15 @@ To restart the simulation with new parameters simpy press 'ENTER'
 - Then the simulation stops and the start menu reopens
 - there you can put in new variables and restart the simulation
 
-## Documentation
+## Developer Documentation
 
 Include a link to your project's full documentation here.
+
+## Authors
+
+- [Lucas Müller](https://github.com/LucasThierry17)
+- [Fouad Mokhtari](https://github.com/Fouad1806)
+- [Sven Ochmann](https://github.com/svenatgithub)
+- [Nick Grabowski](https://github.com/nickno7)
 
 
