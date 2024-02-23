@@ -31,14 +31,15 @@ pip install -r requirements.txt
    python main.py
    ```
 ### First you see the start menu
-![start_menu](https://github.com/lucasthierry17/Ant_Project/assets/96741488/d2f7ec1c-a1a1-4cbb-847e-0d474dcc7cfe)
+![start_menu](https://github.com/lucasthierry17/Ant_Project/assets/96741488/538e1f43-54cf-4355-bcde-3206e6f084d8)
+
 - here you can select the parameters you want
 - type in a value for the number of ants
 - then type in a speed value
 - press the **START** button to start the simulation
 
 ### Then the simulation screen opens
-![Screenshot](simulation_screen.png)
+![Simulation](simulation_screen.png)
 
 ### Food Placement
 You can place and remove food sources by simple mouse clicks
