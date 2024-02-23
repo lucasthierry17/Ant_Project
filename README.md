@@ -86,6 +86,9 @@ The project is structured as follows:
 ## Code Diagramm
 ![Code_Diagramm](https://github.com/lucasthierry17/Ant_Project/assets/96741488/a4b8e4c2-c7da-4e99-bea9-e0ab46e194bf)
 
+## Code Logic
+![ant_diagramm 1](https://github.com/lucasthierry17/Ant_Project/assets/96741488/65ef2975-9ea3-4bfa-9ed5-9ba05da23f4c)
+
 
 ## 3. Customization
 ### 3.1 Adjustable Parameters
