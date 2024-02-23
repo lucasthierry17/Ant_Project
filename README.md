@@ -83,9 +83,13 @@ The project is structured as follows:
 - the simulation includes a start menu allowing users to configure parameters before starting the simulation
 - users can specify the number of ants and the speed of their movement.
 
+## Code Diagramm
+![Code_Diagramm](https://github.com/lucasthierry17/Ant_Project/assets/96741488/a4b8e4c2-c7da-4e99-bea9-e0ab46e194bf)
+
+
 ## 3. Customization
 ### 3.1 Adjustable Parameters
-- Number of Ants: Modify the **'num_ants'** variable in **`main.py`**
+- Number of Ants: Modify the **`num_ants`** variable in **`main.py`**
 - Ant Speed: Adjust the **`speed`** parameter when creating Ants instances in **`main.py`**
 - Evaporation Rate: Change the rate in the **'Pheromones'** class constructor
 
@@ -107,9 +111,9 @@ The project is structured as follows:
 - Change the ant's direction to simulate turning around
 
 ### 4.2 Pheromones Class
-4.2.1 **`__init__(self, bigSize)`**
+4.2.1 **`__init__(self, big_screen_size)`**
 - **Parameters:**
-  - **`bigSize`**: Tuple, size of the pheromone grid
+  - **`big_screen_size`**: Tuple, size of the pheromone grid
 
 4.2.2 **`update(self)`**
 - Update the pheromone levels, simulating evaporation
