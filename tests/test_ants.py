@@ -4,7 +4,7 @@ import pygame
 from source.main import Pheromones
 from source.main import Ants
 pygame.init()
-pygame.display.set_mode((1350, 800)) 
+pygame.display.set_mode((1350, 800), ) 
 
 
 def test_calculate_distance():
