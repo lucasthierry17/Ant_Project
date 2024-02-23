@@ -24,7 +24,7 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
 ]
 
-dependencies = ["numpy", "matplotlib"]
+dependencies = ["numpy", "pygame"]
 description = "the package for our project"
 license = {file = "LICENSE"}
 name = "Ant_Project"
