@@ -5,7 +5,7 @@ import pygame
 import numpy as np
 from source.start_screen import StartMenu
 
-
+# Defining Constants
 WIDTH, HEIGHT = 1200, 800
 NUM_ANTS = 300 # number of ants
 PRATIO = 5 # ratio between screen and phero_grid
@@ -19,11 +19,20 @@ NEST_SIZE = 30
 FOOD_SOURCES = [] 
 
 class Ants(pygame.sprite.Sprite):
-    """ANT Class, changes the ant orientation"""
+    """ This class encapsulates the behavior and attributes of the ants. It serves as a blueprint
+        for creating individual ant instances. The primary functionality of this class is to control
+        the orientation and movement of the ants within the simulation. 
+        
+        The ants' orientation is determined by their initial angle and is subject to random changes within a specified range.
+        Additionally, the class handles the ants' interaction with food sources, their navigation
+        towards the nest, and the updating of pheromone trails left by the ants.
+        
+        The behavior is dependent on whether an ant is carrying food or not, and it includes methods for random
+        walking and turning around upon reaching certain conditions."""
     def __init__(self, nest, pheromones, speed):
         super().__init__()
         self.x_pos, self.y_pos = nest  # starting coordinates
-        self.phero = pheromones
+        self.phero = pheromones 
         self.image = pygame.Surface((12, 21), pygame.SRCALPHA)
         pygame.draw.circle(self.image, (120, 45, 45), (6, 5), 3)  # draw_ants
         self.orig_image = pygame.transform.rotate(self.image.copy(), -90)
@@ -35,8 +44,8 @@ class Ants(pygame.sprite.Sprite):
         self.desire_dir = pygame.Vector2(
             np.cos(np.radians(self.start_ang)), np.sin(np.radians(self.start_ang))
         )  # direction
-        self.has_food = False
-        self.my_food_source = []
+        self.has_food = False   # Status of the ant
+        self.my_food_source = []    # food_source to which the ant is goint to
         self.speed = speed
 
     def scaled_pos(self, pos_x, pos_y):
@@ -45,18 +54,22 @@ class Ants(pygame.sprite.Sprite):
         return scaled_pos
 
     def update(self):
+        """Updates the position depending on the status of the ant"""
         min_distance = 1000
         scaled_pos = self.scaled_pos(self.x_pos, self.y_pos)
-        # Move the ant
 
-        if self.has_food:  # ant has food
+        # Check the food status of the ant
+        if self.has_food:  
+
+            # Calculate distance to the nest
             distance = self.calculate_distance(
                 scaled_pos, ((NEST[0] / PRATIO), (NEST[1] / PRATIO))
             )
             if distance < 5:  # ant has reached the nest
-                self.has_food = False
+                self.has_food = False   # Change the status of the ant
                 self.turn_around()
 
+            # If the ant collides with a pheromone_value greater than 75, it should follow the direction vector to the nest
             elif distance > 30 or self.phero.img_array[scaled_pos][2] < 75:
                 self.desire_dir = pygame.Vector2(
                     NEST[0] - self.x_pos, NEST[1] - self.y_pos
@@ -72,26 +85,28 @@ class Ants(pygame.sprite.Sprite):
                 ).normalize()  # go towards the nest
 
             self.phero.img_array[scaled_pos] += (0, FOOD_PHEROMONE, 0)  # update pheromones
-
-        else:  # ant has no food
+        
+        # The food status of the ant is false
+        else:  
             if FOOD_SOURCES:
                 for food in FOOD_SOURCES:
-                    distance = self.calculate_distance(scaled_pos, food)
+                    distance = self.calculate_distance(scaled_pos, food)  # Calculates distances from its own position to all food sources
                     if distance < min_distance:
-                        min_distance = distance
+                        min_distance = distance  # Getting the closest food source by searching for the minimum distance
                         closest_food = food
                     if distance < 5:  # reaches the food source
-                        self.has_food = True
-                        self.my_food_source = food
+                        self.has_food = True # Change the food status
+                        self.my_food_source = food  # The found food_status is now marked 
                         if self.my_food_source not in FOOD_SOURCES:
                             self.my_food_source = None
                         break
                     
-                # Move towards the food source if it's not too far or if pheromone value is high enough
+            # Move towards the food source if it's not too far or if pheromone value is high enough
                 if min_distance < 15 or self.phero.img_array[scaled_pos][1] > 75:
-                    if self.my_food_source:
+                    if self.my_food_source: # If a marked food source is given, calculate the distance to its own position
                         self.desire_dir = pygame.Vector2(self.my_food_source[0] - scaled_pos[0], self.my_food_source[1] - scaled_pos[1])
-                    else:
+                    else: 
+                        # If no marked food source is given, calculate the distance to its own position
                         self.desire_dir = pygame.Vector2(closest_food[0] - scaled_pos[0], closest_food[1] - scaled_pos[1])
             else:
                 closest_food = None
@@ -104,6 +119,7 @@ class Ants(pygame.sprite.Sprite):
             # Update pheromones
             self.phero.img_array[scaled_pos] += (0, 0, HOME_PHEROMONE)
 
+        # Update the position of the ant
         self.x_pos += self.desire_dir[0] * self.speed
         self.y_pos += self.desire_dir[1] * self.speed
 
@@ -112,7 +128,7 @@ class Ants(pygame.sprite.Sprite):
             # Bounce back if the ant goes out of the screen 
             self.turn_around()
 
-        self.rect.center = (self.x_pos, self.y_pos)
+        self.rect.center = (self.x_pos, self.y_pos) # Defining the new center of the ant
 
     def calculate_distance(self, start, target): 
         """calculates distance between two points"""
@@ -125,8 +141,14 @@ class Ants(pygame.sprite.Sprite):
         self.y_pos += self.desire_dir[1] * self.speed
 
     def random_walk(self):
+        """Introduces a random movement pattern for the ant."""
+        # Generate a random angle within the specified range
         angle_change = random.uniform(*self.angle_range)
+
+        # Rotate the current direction vector by the random angle
         self.desire_dir = self.desire_dir.rotate(angle_change)
+
+        # Check if the resulting direction has a non-zero length
         if self.desire_dir.length() > 0:
             self.desire_dir = self.desire_dir.normalize()
         else:
@@ -134,6 +156,7 @@ class Ants(pygame.sprite.Sprite):
             random_angle = random.uniform(0, 360)
             self.desire_dir = pygame.Vector2(1, 0).rotate(random_angle)
     
+
 class Pheromones:
     """This class handles generating and updating the Pheromone arrays"""
     def __init__(self, big_screen_size):
@@ -153,40 +176,70 @@ class Pheromones:
         self.img_array.fill(0)
 
 def main():
-    """Game Loop"""
-    pygame.init()
-    start_menu = StartMenu()
+    """ 
+    Game Loop
 
+    This function represents the main game loop, orchestrating the flow of the simulation.
+    It initializes Pygame, sets up the StartMenu, and prepares necessary components such
+    as pheromones and ant groups.
+    
+    The Pygame display is updated within the nested loop, and the screen is filled with black
+    in preparation for the next frame. The pheromone grid is scaled back to the original
+    screen size and drawn onto the screen. The nest and food sources are drawn as circles,
+    and ant instances are directly drawn onto the screen.
+
+    Note: This function assumes the existence of the following global variables/constants:
+    - WIDTH, HEIGHT, NUM_ANTS, PRATIO, NEST, VSYNC, SPEED, HOME_PHEROMONE, FOOD_PHEROMONE,
+      DECAY_RATE, NEST_SIZE, FOOD_SOURCES.
+    - Ants class, Pheromones class, and necessary imports.
+    """
+    # Initialize Pygame
+    pygame.init()
+    start_menu = StartMenu() # Create an instance of the StartMenu class
+
+   # Store the original screen size for later use
     start_screen_size = (
         pygame.display.get_surface().get_size()
     )  # Store the original screen size
 
-    pheromones = Pheromones((WIDTH, HEIGHT))  # creating phero grid
-    ants = pygame.sprite.Group()
+    pheromones = Pheromones((WIDTH, HEIGHT))  # # Create an instance of the Pheromones class to represent the pheromone grid
+    ants = pygame.sprite.Group() # Create a Pygame sprite group to manage ant instances
 
+    # Flag to control the main loop    
     ready_to_go = True
+
+    # Main game loop
     while ready_to_go:
+        # Check the current state of the game
         if start_menu.game_state == "start_menu":
-            pygame.display.set_caption("Start Menu")
+            pygame.display.set_caption("Start Menu") # Set the Pygame window caption to "Start Menu"
+            
+            # Handle events, update, and draw the start menu
             start_menu.handle_events()
             start_menu.draw()
 
             # Clear everything when returning to the start menu
-            ants.empty()
-            pheromones.reset()
-            FOOD_SOURCES.clear()
+            ants.empty()    # Remove all ant instances
+            pheromones.reset()  # Reset the pheromone grid
+            FOOD_SOURCES.clear()     # Clear the list of food sources
 
         elif start_menu.game_state == "Simulation":
+            # Set the Pygame window caption to "Simulation"
             pygame.display.set_caption("Simulation")
+
+            # Create ant instances based on the user-specified number
             for _ in range(
                 int(start_menu.num_ants)
             ):  # adding the number of ants the user types in
                 ants.add(Ants(NEST, pheromones, speed=float(start_menu.speed)))
 
+            # Create a Pygame window for the simulation
             screen = pygame.display.set_mode((WIDTH, HEIGHT), vsync=VSYNC)
 
+            # Flag to control the simulation loop
             running = True
             while running:
+                # Event handling
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
                         running = False
@@ -203,10 +256,13 @@ def main():
                     elif event.type == pygame.MOUSEBUTTONDOWN:
                         mousepos = pygame.mouse.get_pos()
 
+                        # Placing the food source with left-click
                         if event.button == 1:
                             FOOD_SOURCES.append(
                                 (mousepos[0] // PRATIO, mousepos[1] // PRATIO)
                             )
+
+                        # Removing the food source with right-click
                         elif event.button == 3:
                             for source in FOOD_SOURCES:
                                 if (
@@ -218,6 +274,7 @@ def main():
                                 ):
                                     FOOD_SOURCES.remove(source)
 
+                # Update pheromones and ants
                 phero_grid = pheromones.update()
                 ants.update()
 
@@ -241,7 +298,7 @@ def main():
 
                 ants.draw(screen)  # Draw ants directly onto the screen
 
-                pygame.display.update()
+                pygame.display.update() # Update the display
 
 if __name__ == "__main__":
-    main() 
+    main()
