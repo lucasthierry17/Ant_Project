@@ -3,9 +3,9 @@ In this project, we simulated the food search behavior of ants using Python and 
 
 ## Dependencies
 
- - Python
- - Pygame
- - Numpy
+ - **Python**
+ - **Pygame**
+ - **Numpy**
 
 ## Installation
 First Clone the Github repository:
@@ -22,11 +22,11 @@ pip install -r requirements.txt
 ```
 
 ## How to run the simulation
-1. navigate to the 'source' folder:
+1. navigate to the **`source`** folder:
    ```console
    cd source
    ```
-2. run the **main.py** file
+2. run the **`main.py`** file
    ```console
    python main.py
    ```
@@ -48,7 +48,7 @@ https://github.com/lucasthierry17/Ant_Project/assets/96741488/c9d30cf5-9261-4a96
 - press **right mouse button** on the food source you want to remove
 
 ### Restart with new parameters
-To restart the simulation with new parameters simpy press **ESCAPE**
+To restart the simulation with new parameters simpy press **`ESCAPE`**
 
 - Then the simulation stops and the start menu reopens
 - there you can put in new variables and restart the simulation
@@ -58,9 +58,9 @@ Welcome to the developer documentation for the Ant Search Behavior Simulation pr
 
 ## 1. Project Structure
 The project is structured as follows:
-- **main.py**: The main entry point for the simulation
-- **start_screen.py**: Contains the StartMenu class for user configuration
-- **tests/**: Directory containing test cases
+- **`main.py`**: The main entry point for the simulation
+- **`start_screen.py`**: Contains the StartMenu class for user configuration
+- **`tests/`**: Directory containing test cases
 
 ## 2. Code Architecture
 ### 2.1 Ant Class ('Ants')
@@ -85,36 +85,36 @@ The project is structured as follows:
 
 ## 3. Customization
 ### 3.1 Adjustable Parameters
-- Number of Ants: Modify the **'num_ants'** variable in **'main.py'**
-- Ant Speed: Adjust the **'speed'** parameter when creating Ants instances in **'main.py'**
+- Number of Ants: Modify the **'num_ants'** variable in **`main.py`**
+- Ant Speed: Adjust the **`speed`** parameter when creating Ants instances in **`main.py`**
 - Evaporation Rate: Change the rate in the **'Pheromones'** class constructor
 
 ## 4. API Documentation
 ### 4.1 Ants Class
-4.1.1 **'__init__(self, nest, pheromones, speed)'**
+4.1.1 **`__init__(self, nest, pheromones, speed)`**
 - **Parameters:**
-  - **'nest'**: Tuple, starting position of the ant.
-  - **'pheromones'**: Pheromones instance for communication.
-  - **'speed'**: Float, speed of ant movement.
+  - **`nest`**: Tuple, starting position of the ant.
+  - **`pheromones`**: Pheromones instance for communication.
+  - **`speed`**: Float, speed of ant movement.
 
-4.1.2 **'update(self)'**
+4.1.2 **`update(self)`**
 - Update the ant's position and behavior in the simulation
 
-4.1.3 **'calculate_distance(self, start, target)'**
+4.1.3 **`calculate_distance(self, start, target)`**
 - Calculate the Euclidean distance between two points
 
-4.1.4 turn_around(self)
+4.1.4 **`turn_around(self)`**
 - Change the ant's direction to simulate turning around
 
 ### 4.2 Pheromones Class
-4.2.1 **'__init__(self, bigSize)'**
+4.2.1 **`__init__(self, bigSize)`**
 - **Parameters:**
-  - **'bigSize'**: Tuple, size of the pheromone grid
+  - **`bigSize`**: Tuple, size of the pheromone grid
 
-4.2.2 **'update(self)'**
+4.2.2 **`update(self)`**
 - Update the pheromone levels, simulating evaporation
 
-4.2.3 **'reset(self)'**
+4.2.3 **`reset(self)`**
 - Reset the pheromone grid to its initial state
 
 ## 5. Extending Functionality
@@ -133,14 +133,14 @@ The project is structured as follows:
 - Follow the contribution guidelines in the repository
 
 
-**Thank you for your interest in the Ant Search Simulation project!**  
-
-
 ## Authors
 
 - [Lucas Müller](https://github.com/LucasThierry17)
 - [Fouad Mokhtari](https://github.com/Fouad1806)
 - [Sven Ochmann](https://github.com/svenatgithub)
 - [Nick Grabowski](https://github.com/nickno7)
+
+
+**Thank you for your interest in the Ant Search Simulation project!**  
 
 
