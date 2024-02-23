@@ -1,0 +1,6 @@
+numpy
+pygame
+black
+ruff
+isort
+pytest
