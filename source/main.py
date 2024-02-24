@@ -3,7 +3,7 @@ import math
 import random
 import pygame
 import numpy as np
-from source.start_screen import StartMenu
+from start_screen import StartMenu
 
 # Defining Constants
 WIDTH, HEIGHT = 1200, 800
