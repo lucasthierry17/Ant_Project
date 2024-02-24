@@ -22,14 +22,13 @@ pip install -r requirements.txt
 ```
 
 ## How to run the simulation
-1. navigate to the **`source`** folder:
+ 
+   
+   run the **`main.py`** file
    ```console
-   cd source
+   python -m source.main
    ```
-2. run the **`main.py`** file
-   ```console
-   python main.py
-   ```
+- it is important to run the script as a module, so that python treats the script as part of a package and allows for relative imports to work properly
 ### First you see the start menu
 ![start_menu](https://github.com/lucasthierry17/Ant_Project/assets/96741488/538e1f43-54cf-4355-bcde-3206e6f084d8)
 
