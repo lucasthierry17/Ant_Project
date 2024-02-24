@@ -1,8 +1,7 @@
 import numpy as np
 import pytest
 import pygame
-from source.main import Pheromones
-from source.main import Ants
+from source import main
 pygame.init()
 pygame.display.set_mode((1350, 800), ) 
 
@@ -14,7 +13,7 @@ def test_calculate_distance():
     start=[0,0]
     target=[[4,1],[300,20],[60,12],[839,2],[432,30],[2,67]]
     for run, entry in enumerate(target):
-        result=Ants.calculate_distance(self_replacement,start, entry)
+        result=main.Ants.calculate_distance(self_replacement,start, entry)
         assert result == expected_result[run] # Calculates the Distance between two spots
 
 
@@ -23,12 +22,12 @@ def test_scaled_position(): ## Muss eingefügt werden
     x=[200,230,123,55,282]
     y=[120,321,21,10,90]
     for run, entry in enumerate(x):
-        result = Ants.scaled_pos(None, entry, y[run])
+        result = main.Ants.scaled_pos(None, entry, y[run])
         assert result == expected_result[run] # Positions get scaled by PRATIO
 
 def test_update():
-    phero=Pheromones((1350,800))
-    ant=Ants((1350//3.5,800//2), phero,1)    
+    phero=main.Pheromones((1350,800))
+    ant=main.Ants((1350//3.5,800//2), phero,1)    
     start_value_desireDir=ant.desire_dir
     start_value_x=ant.x_pos
     start_value_y=ant.y_pos
@@ -41,8 +40,8 @@ def test_update():
     assert result_value_y != start_value_y # Succesfuly updated y 
 
 def test_random_walk():
-    phero=Pheromones((1350,800))
-    ant=Ants((1350//3.5,800//2), phero,1)    
+    phero=main.Pheromones((1350,800))
+    ant=main.Ants((1350//3.5,800//2), phero,1)    
     start_value_desireDir=ant.desire_dir
     ant.random_walk()
     result_value_desireDir=ant.desire_dir

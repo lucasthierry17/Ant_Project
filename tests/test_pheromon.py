@@ -1,14 +1,13 @@
 import numpy as np
 import pytest
 import pygame
-from source.main import Pheromones
-from source.main import Ants
+from source import main
 
 pygame.init()
 pygame.display.set_mode((1350, 800)) 
 
 def test_update():
-    pher=Pheromones((350,100))
+    pher=main.Pheromones((350,100))
     start=pher.img_array
     pher.update()
     result=pher.img_array
@@ -16,7 +15,7 @@ def test_update():
 
 
 def test_reset():
-    pher=Pheromones((350,100))
+    pher=main.Pheromones((350,100))
     start=pher.img_array.fill(11)
     pher.reset()
     result=pher.img_array
