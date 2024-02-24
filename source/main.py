@@ -70,16 +70,18 @@ class Ants(pygame.sprite.Sprite):
                 self.turn_around()
 
             # If the ant collides with a pheromone_value greater than 75, it should follow the direction vector to the nest
-            elif distance < 30 or self.phero.img_array[scaled_pos][2] > 0:
+            elif distance > 30 or self.phero.img_array[scaled_pos][2] < 75:
                 self.desire_dir = pygame.Vector2(
                     NEST[0] - self.x_pos, NEST[1] - self.y_pos
                 ).normalize()  # go towards the nest
-
-                
+                random_angle = random.uniform(-50, 50)
+                self.desire_dir.rotate_ip(random_angle)
 
             else: # no home_pheromone and distance to large
-                self.random_walk() # walk random around
-
+                self.desire_dir = pygame.Vector2(
+                    NEST[0] - self.x_pos, NEST[1] - self.y_pos
+                ).normalize()  # go towards the nest
+                     
             self.phero.img_array[scaled_pos] += (0, FOOD_PHEROMONE, 0)  # update pheromones
         
         # The food status of the ant is false
