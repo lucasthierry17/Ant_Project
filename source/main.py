@@ -6,7 +6,7 @@ import numpy as np
 from .start_screen import StartMenu
 
 # Defining Constants
-WIDTH, HEIGHT = 1200, 800
+WIDTH, HEIGHT = 1000, 700
 NUM_ANTS = 300 # number of ants
 PRATIO = 5 # ratio between screen and phero_grid
 NEST = (WIDTH // 3.5, HEIGHT // 2) 
@@ -14,7 +14,7 @@ VSYNC = True
 SPEED = 2
 HOME_PHEROMONE = 50
 FOOD_PHEROMONE = 70
-DECAY_RATE = 0.6
+DECAY_RATE = 0.3
 NEST_SIZE = 30
 FOOD_SOURCES = [] 
 
@@ -34,7 +34,7 @@ class Ants(pygame.sprite.Sprite):
         self.x_pos, self.y_pos = nest  # starting coordinates
         self.phero = pheromones 
         self.image = pygame.Surface((12, 21), pygame.SRCALPHA)
-        pygame.draw.circle(self.image, (120, 45, 45), (6, 5), 3)  # draw_ants
+        pygame.draw.circle(self.image, (200, 20, 20), (6, 5), 3)  # draw_ants
         self.orig_image = pygame.transform.rotate(self.image.copy(), -90)
         self.rect = self.orig_image.get_rect(center=nest)
         self.start_ang = random.randint(
@@ -70,7 +70,7 @@ class Ants(pygame.sprite.Sprite):
                 self.turn_around()
 
             # If the ant collides with a pheromone_value smaller than 75, it should follow the direction vector to the nest
-            elif distance > 30 or self.phero.img_array[scaled_pos][2] < 75:
+            elif distance < 30 or self.phero.img_array[scaled_pos][2] > 0:
                 self.desire_dir = pygame.Vector2(
                     NEST[0] - self.x_pos, NEST[1] - self.y_pos
                 ).normalize()  # go towards the nest
@@ -78,15 +78,13 @@ class Ants(pygame.sprite.Sprite):
                 self.desire_dir.rotate_ip(random_angle)
 
             else: # no home_pheromone and distance to large
-                self.desire_dir = pygame.Vector2(
-                    NEST[0] - self.x_pos, NEST[1] - self.y_pos
-                ).normalize()  # go towards the nest
+                self.random_walk()  # go towards the nest
 
             self.phero.img_array[scaled_pos] += (0, FOOD_PHEROMONE, 0)  # update pheromones
         
         # The food status of the ant is false
         else:  
-            if FOOD_SOURCES:
+            if FOOD_SOURCES: 
                 for food in FOOD_SOURCES:
                     distance = self.calculate_distance(scaled_pos, food)  # Calculates distances from its own position to all food sources
                     if distance < min_distance:
